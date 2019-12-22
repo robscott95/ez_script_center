@@ -1,0 +1,36 @@
+version: '3'
+
+services: 
+  web:
+    stdin_open: true
+    tty: true
+    build: .
+    command: > 
+      python -u run.py
+    environment: 
+      PYTHONBUFFERED: 'false'
+      DATABASE_URL: ${DATABASE_URL}
+      GOOGLE_AUTH_REDIRECT_URI: ${GOOGLE_AUTH_REDIRECT_URI}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      REDIS_URL: ${REDIS_URL}
+      APP_SECRET_KEY: ${APP_SECRET_KEY}
+      FLASK_ENV: ${FLASK_ENV}
+    ports:
+      - '5000:5000'
+    volumes:
+      - '.:/app'
+    hostname: 'web'
+
+  celery:
+    build: .
+    command: celery worker -A analysts_toolbox.celery --loglevel=info
+    environment: 
+      REDIS_URL: ${REDIS_URL}
+    volumes: 
+      - '.:/app'
+    hostname: 'celery'
+    links: 
+      - 'web'
+    user: 'nobody'
+      

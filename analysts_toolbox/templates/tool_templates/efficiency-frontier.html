@@ -1,0 +1,141 @@
+{% extends "layout.html"%}
+
+{%block body%}
+
+<div class="wrapper-form">
+    <form id="script-request" class="needs-validation" novalidate>
+        
+        <div id="tool-description">
+            <h3>Description</h3>
+            {{long_desc}}
+        </div>
+        <br />
+
+        <h3>Settings</h3>
+        <div class="form-group">
+            <label for="platform"><b>Select platform:</b></label>
+            <select class="form-control" id="platform" required>
+                <option>Facebook</option>
+                <option>Google Ads</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="accountId"><b>Account ID:</b></label>
+            <input type="number" class="form-control" id="accountId" placeholder="123468976" required>
+        </div>
+
+        <div class='form-group'>
+            <label><b>Date range:</b></label>
+            <div class='form-row' id='datePicker'>
+                <div class='col'>
+                    <label for="datePicker">From:</label>
+                    <input type="text" class="form-control" id="datePickerFrom" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required>
+                </div>
+                <div class='col'>
+                    <label for="datePicker">To:</label>
+                    <input type="text" class="form-control" id="datePickerTo" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required>
+                </div>
+            </div>
+            <small id="passwordHelpBlock" class="form-text text-muted">
+                Set the date range from which we should analyze data. Both dates are included in analysis.
+                <br />
+                Required format: YYYY-MM-DD.
+            </small>
+        </div>
+
+        <div class="form-group">
+        <button class="btn btn-outline-secondary gray-active" type="button" data-toggle="collapse" data-target="#advancedSettings" aria-expanded="false"
+            aria-pressed="false" aria-controls="advancedSettings" autocomplete="off">
+            Advanced Settings
+        </button>
+        </div>
+        <div class="collapse" id="advancedSettings">
+            <div class='form-group'>
+                <label><b>Attribution window settings:</b></label>
+                <div class='form-row' id='attributionWindow'>
+                    <div class='col'>
+                        <label for="datePicker">Set attribution window for <b>view</b>:</label>
+                        <input type="text" class="form-control" id="attributionWindowView" placeholder="1d">
+                    </div>
+                    <div class='col'>
+                        <label for="datePicker">Set attribution window for <b>click</b></label>
+                        <input type="text" class="form-control" id="attributionWindowClick" placeholder="28d">
+                    </div>
+                </div>
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                    Only useful in Facebook. Set 0 in any field to exclude that type of attribution from analysis.
+                </small>
+            </div>
+
+            <div class='form-group'>
+                <label><b>New budget settings:</b></label>
+                <div class='form-row' id='newBudgetParamaters'>
+                    <div class='col-3'>
+                        <label for="newBudgetParamaters">Total or relative?</label>
+                        <select class="form-control" id="newBudgetParamaterType">
+                            <option>Relative</option>
+                            <option>Absolute</option>
+                        </select>
+                    </div>
+                    <div class='col'>
+                        <label for="newBudgetParamaters">Value</label>
+                        <input type="text" class="form-control" id="newBudgetParamaterValue" placeholder="1.0">
+                    </div>
+                </div>
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                    What should be the new budget? By default it's the same as for the last period (Relative: 1.0x).
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="onlyRun"><b>Run only campaign with these keywords:</b></label>
+                <input type="text" class="form-control" id="onlyRun" placeholder="LAD">
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                    To add more keywords, seperate them by a comma (<b>,</b>).
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="staticKeyword"><b>Don't change budget in campaigns containing these keywords:</b></label>
+                <input type="text" class="form-control" id="staticKeyword" placeholder="brand, remarket">
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                    To add more keywords, seperate them by a comma (<b>,</b>).
+                </small>
+            </div>
+
+            <div class='form-group'>
+                <label><b>New campaigns settings:</b></label>
+                <div class='form-row' id='newCampaignParamaters'>
+                    <div class='col-4'>
+                        <label for="newCampaignParamaters">Count of placeholder campaigns</label>
+                        <input type="text" class="form-control" id="newCampaignParamaterCount" placeholder="0">
+                    </div>
+                    <div class='col-5'>
+                        <label for="newCampaignParamaters">Total or relative budget accomodation?</label>
+                        <select class="form-control" id="newCampaignParamaterBudgetType">
+                            <option>Relative</option>
+                            <option>Absolute</option>
+                        </select>
+                    </div>
+                    <div class='col-3'>
+                        <label for="newCampaignParamaters">Value</label>
+                        <input type="text" class="form-control" id="newCampaignParamaterBudgetValue" placeholder="1.0">
+                    </div>
+                </div>
+                <small id="passwordHelpBlock" class="form-text text-muted">
+                    You can set here the amount of placeholder campaigns to be included in analysis and the type and
+                    amount of budget allocated for them.
+                    <br />
+                    If "Count of placeholder campaigns" is set to 0 then it is omitted.
+                </small>
+            </div>
+        </div>
+        <div class="text-center">
+            <button id="submit-btn" type="button" class="btn btn-primary btn-lg align-self-center" onclick="toggleModal()">Execute script</button>
+        </div>
+    </form>
+</div>  
+
+{% include 'progress.html' %}
+{%endblock%}
