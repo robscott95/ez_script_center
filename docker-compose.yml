@@ -9,13 +9,8 @@ services:
       python -u run.py
     environment: 
       PYTHONBUFFERED: 'false'
-      DATABASE_URL: ${DATABASE_URL}
-      GOOGLE_AUTH_REDIRECT_URI: ${GOOGLE_AUTH_REDIRECT_URI}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      REDIS_URL: ${REDIS_URL}
-      APP_SECRET_KEY: ${APP_SECRET_KEY}
-      FLASK_ENV: ${FLASK_ENV}
+    env_file:
+      - .env
     ports:
       - '5000:5000'
     volumes:
@@ -24,9 +19,9 @@ services:
 
   celery:
     build: .
-    command: celery worker -A analysts_toolbox.celery --loglevel=info
-    environment: 
-      REDIS_URL: ${REDIS_URL}
+    command: celery worker -A ez_script_center.celery_worker --loglevel=info
+    env_file:
+      - .env
     volumes: 
       - '.:/app'
     hostname: 'celery'

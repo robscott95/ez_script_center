@@ -1,0 +1,26 @@
+{% extends "layout.html"%}
+
+{% block body %}
+<div class="jumbotron text-center" style="background-color: #fdfdfd">
+    <h1>Choose your tool</h1>
+</div>
+
+<div class="container">
+    
+    {% for tool_row in items | batch(3, '') %}
+    <div class="row align-items-center justify-content-center">
+        {% for tool_item in tool_row %}
+            {% if tool_item != '' %}
+                <a class="col text-center menu-box-item" href={{ tool_item[2] }}>
+                    <h3>{{ tool_item[0] }}</h3>
+                    <p>{{ tool_item[1] }}</p>   
+            {% else %}
+                <a class="col">
+            {% endif %}
+            
+            </a>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
