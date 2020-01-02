@@ -1,10 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, jsonify
 from . import celery_worker
-import random
-import time
 import logging
 
-from .tasks_manager import AVAILABLE_TASKS
+from .tasks_manager import TasksManager
 
 tasks = Blueprint('tasks', __name__)
 
@@ -14,10 +12,9 @@ logger = logging.getLogger('celery_error')
 @tasks.route('/status/<task_url>/<task_id>', methods=["GET"])
 def task_status(task_url, task_id):
 
-    task = AVAILABLE_TASKS[task_url].AsyncResult(task_id)
+    task = TasksManager.available_tasks[task_url].AsyncResult(task_id)
 
     try:
-        task = task.get()
 
         if task.state == 'PENDING':
             response = {
@@ -41,6 +38,8 @@ def task_status(task_url, task_id):
                 'status': task.info.get('status', ''),
                 'result': task.info['result']
             }
+
+            task.forget()
         else:
             # Anything unhandled
             response = {
@@ -49,6 +48,9 @@ def task_status(task_url, task_id):
                 'total': 1,
                 'result': str(task.result)
             }
+
+            # By default forget it.
+            task.forget()
 
     except Exception:
         # If an error is raised when getting the results, just handle
@@ -61,6 +63,6 @@ def task_status(task_url, task_id):
             'result': str(task.result)
         }
 
-    task.forget()
+        task.forget()
 
     return jsonify(response)

@@ -29,6 +29,7 @@ pandas = "*"
 pyyaml = "*"
 boto3 = "*"
 flask-wtf = "*"
+xlsxwriter = "*"
 
 [requires]
 python_version = "3.7"

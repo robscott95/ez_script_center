@@ -11,15 +11,18 @@ TODO:
 * Known issues - https://github.com/explosion/spaCy/issues/3665
 """
 
-from io import StringIO
+from io import StringIO, BytesIO, TextIOWrapper
+import time
+
+from ez_script_center.tasks_manager import TasksManager
+from ez_script_center import s3
+from ez_script_center.database_manager import update_task_history_with_results
 
 from ez_script_center import celery_worker
-from ez_script_center.tasks.scripts import ngram_analysis
-
-from ez_script_center.tasks_manager import register_task
+from ez_script_center.tasks_manager.scripts import ngram_analysis
 
 
-@register_task("n_gram_analysis")
+@TasksManager.register_task(url="n-gram-analysis")
 @celery_worker.task(bind=True)
 def execute_ngram_analysis(
     self,
@@ -32,13 +35,13 @@ def execute_ngram_analysis(
     Saves the analysis to .xlsx file.
 
     Args:
-        - input_file (str): The relative path to the raw data file in a
-            csv format.
-        - output_folder (str, optional): The relative path to which the
-            output .xlsx files should be written.
-            Defaults to "ngram_analysis"
-        - output_file_prefix (str, optional): The prefix that will be
-            attached to the .xlsx file containing the analysis.
+        - data (dict): The data dictionary containing a files key and
+            input_args key.
+            "input_files" key: contains a dict with form field name as
+            key and s3 file key as value.
+            "input_info": contains another dict-like object with form
+            field names as key and values corresponding to what the user
+            has passed in.
         - lemmatize (bool, optional): If set to True the cleaned data
             will also be very conservatively lemmatized, trying to
             normalize only words that are more or less sure with
@@ -46,31 +49,11 @@ def execute_ngram_analysis(
             Defaults to False.
 
     Returns:
-        - dict: A dictionary containing key value pairs of the ngram
-            and ngram's performance DataFrame.
-
-            {
-                "1-gram": DataFrame({
-                    "1-gram": ["jack", "and", "jill"],
-                    "link_clicks": [1000, 3000, 2000],
-                    "in_ads": ["ad_1", "ad_1, ad_2", "ad_2"]
-                }),
-                "2-gram": DataFrame({
-                    "2-gram": ["jack and", "and jill"],
-                    "link_clicks": [1000, 2000],
-                    "in_ads": ["ad_1", "ad_2"]
-                })
-            }
-
-    Notes:
-        - Also saves the output to an .xlsx formatted file.
-        - Requirements for the input .csv file:
-            * The first column is required to be the text that you
-                wish to be analyzed, rest of the columns is
-                performance data.
-            * The performance data shouldn't be calculated in any
-                way (averages, ROI, etc.) as thiswill simply
-                return nonsense data due to summing them up.
+        - dict: A dictionary with two keys - result_files and
+            result_info.
+            "result_files" key: contains a dict with form field name as
+            key and s3 file key as value.
+            "result_info" key: contains another dict object.
     """
     self.update_state(
         state="PROGRESS",
@@ -78,14 +61,20 @@ def execute_ngram_analysis(
     )
 
     if lemmatize:
-        spacy.load("en-core-web-sm")
+        ngram_analysis.spacy.load("en-core-web-sm")
+
+    # Convert the downloaded BytesIO object to a StringIO one so
+    # pd.read_csv can use it.
+    filename, input_file = s3.download_fileobj(data["input_files"]["copy_performance"])
+    input_file = TextIOWrapper(input_file, encoding='utf-8')
+    input_file.seek(0)
 
     self.update_state(
         state="PROGRESS",
-        meta={'current': 1, 'total': 5, 'status': f"Reading {input_file}"}
+        meta={'current': 1, 'total': 5, 'status': f"Reading {filename}"}
     )
 
-    input_data_df = pd.read_csv(StringIO(input_file))
+    input_data_df = ngram_analysis.pd.read_csv(input_file)
 
     self.update_state(
         state="PROGRESS",
@@ -108,11 +97,25 @@ def execute_ngram_analysis(
               'status': f"Calculating performance..."}
     )
 
-    ngram_performance_dict = calculate_ngram_performance(input_data_with_ngrams_df)
-    # Need to change the inner dataframes to csv strings.
+    ngram_performance_dict = ngram_analysis.calculate_ngram_performance(input_data_with_ngrams_df)
 
-    return {'state': 'SUCCESS',
-            'current': 5, 'total': 5,
+    # Drop the file into a BytesIO file-like object so it can be safely
+    # uploaded to s3
+    return_file = BytesIO()
+    writer = ngram_analysis.pd.ExcelWriter(return_file, engine="xlsxwriter")
+    for ngram, performance_df in ngram_performance_dict.items():
+        performance_df.to_excel(writer, sheet_name=ngram, index=False)
+
+    return_file_key = s3.upload_fileobj(
+        return_file,
+        file_name=f"Analysis of {filename.split('.')[0]}.xlsx",
+        is_result=True
+    )
+
+    # Update the database
+
+    time.sleep(15)
+
+    return {'current': 5, 'total': 5,
             'status': "Performance calculated.",
-            'result': ngram_performance_dict}
-
+            'result': return_file_key}

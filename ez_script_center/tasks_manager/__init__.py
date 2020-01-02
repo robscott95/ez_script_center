@@ -4,23 +4,25 @@ Module for handling user defined tasks.
 In __init__ of your app please import and initialize the
 TaskManager object.
 """
-from os.path import basename, dirname, join
+from os.path import dirname, basename, join
 from glob import glob
 pwd = dirname(__file__)
-print(pwd)
-
-AVAILABLE_TASKS = {}
 
 
-def register_task(url):
+class TasksManager:
+    available_tasks = {}
 
-    def inner_func(task):
-        AVAILABLE_TASKS.update[url] = task
-        return task
+    def __init__(self):
+        for x in glob(join(pwd, '*.py')):
+            if not basename(x).startswith('__') and basename(x) != "scripts":
+                __import__(f"ez_script_center.tasks_manager.{basename(x)[:-3]}", globals(), locals())
 
-    return inner_func
+    @staticmethod
+    def register_task(url=None):
+        # Make so that if URL is None, it makes the filename the url.
 
+        def inner_func(task):
+            TasksManager.__dict__["available_tasks"][url] = task
+            return task
 
-for x in glob(join(pwd, '*.py')):
-    if not x.startswith('__'):
-        __import__(basename(x)[:-3], globals(), locals())
+        return inner_func

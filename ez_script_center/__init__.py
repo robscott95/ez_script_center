@@ -8,7 +8,7 @@ from oauthlib.oauth2 import WebApplicationClient
 
 from . import config as c
 from .s3_file_manager import S3Manager
-from .tasks_manager import TaskManager
+from .tasks_manager import TasksManager
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -20,8 +20,9 @@ oauth_client = WebApplicationClient(c.GOOGLE_CLIENT_ID)
 # Get the s3 file handler
 s3 = S3Manager(c.S3_BUCKET)
 
-# Get the task manager
-task_manager = TaskManager()
+# Initialize TasksManager so it can read and add all the available
+# tasks from tasks_manager package.
+TasksManager()
 
 
 def create_app():
