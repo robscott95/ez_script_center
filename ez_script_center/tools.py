@@ -6,6 +6,7 @@ from flask import (
     jsonify,
     Markup,
     request,
+    current_app
 )
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
@@ -30,7 +31,6 @@ def menu():
         if tool_info.visible
     ]
 
-    print(available_tools)
     return render_template("menu.html", items=available_tools)
 
 
@@ -43,6 +43,10 @@ def specific_tool(tool_url):
         return "No such script available", 404
     if not tool_info.visible:
         return f"{tool_info.name} is currently unavailable.", 404
+
+    if TasksManager.available_tasks.get(tool_url, None) is None:
+        current_app.logger.error(f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).")
+        return f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).", 500
 
     if request.method == "GET":
         tool_desc = Markup(tool_info.long_description)

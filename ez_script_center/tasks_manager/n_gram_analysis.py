@@ -22,7 +22,7 @@ from ez_script_center import celery_worker
 from ez_script_center.tasks_manager.scripts import ngram_analysis
 
 
-@TasksManager.register_task(url="n-gram-analysis")
+@TasksManager.register_task()
 @celery_worker.task(bind=True)
 def execute_ngram_analysis(
     self,
