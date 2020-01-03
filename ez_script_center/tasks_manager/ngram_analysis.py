@@ -105,6 +105,8 @@ def execute_ngram_analysis(
     writer = ngram_analysis.pd.ExcelWriter(return_file, engine="xlsxwriter")
     for ngram, performance_df in ngram_performance_dict.items():
         performance_df.to_excel(writer, sheet_name=ngram, index=False)
+    writer.close()
+    return_file.seek(0)
 
     return_file_key = s3.upload_fileobj(
         return_file,
@@ -113,8 +115,6 @@ def execute_ngram_analysis(
     )
 
     # Update the database
-
-    time.sleep(15)
 
     return {'current': 5, 'total': 5,
             'status': "Performance calculated.",
