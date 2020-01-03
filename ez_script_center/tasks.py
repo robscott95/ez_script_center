@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, jsonify
+from flask import Blueprint, render_template, redirect, url_for, jsonify, current_app
 from . import celery_worker
 import logging
 
@@ -15,7 +15,6 @@ def task_status(task_url, task_id):
     task = TasksManager.available_tasks[task_url].AsyncResult(task_id)
 
     try:
-
         if task.state == 'PENDING':
             response = {
                 'state': task.state,
@@ -40,27 +39,31 @@ def task_status(task_url, task_id):
             }
 
             task.forget()
+
         else:
-            # Anything unhandled
+            # Anything unhandled.
             response = {
                 'state': task.state,
                 'current': 0,
                 'total': 1,
-                'result': str(task.result)
+                'status': task.status,
             }
 
-            # By default forget it.
-            task.forget()
+            if task.failed():
+                response["result"] = str(task.result)
+                task.forget()
 
-    except Exception:
+    except Exception as e:
         # If an error is raised when getting the results, just handle
         # it as a failed task.
+        current_app.logger.critical(f"{task_url}, ID:{task_id} failed because of {e}")
+
         response = {
             'state': "FAILED",
             'current': 0,
             'total': 1,
             'status': "ERROR",
-            'result': str(task.result)
+            'result': e
         }
 
         task.forget()
