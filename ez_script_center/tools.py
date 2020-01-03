@@ -81,9 +81,8 @@ def specific_tool(tool_url):
         task = TasksManager.available_tasks[tool_url].apply_async(args=(data,),
                                                                   task_id=str(task_id))
 
-        print(url_for("tasks.task_status", task_url=tool_url, task_id=task.id))
         return (
             jsonify({}),
             202,
-            {"Location": url_for("tasks.task_status", task_url=tool_url, task_id=task.id)},
+            {"task_status_url": url_for("tasks.task_status", task_url=tool_url, task_id=task.id)},
         )
