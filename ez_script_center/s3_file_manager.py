@@ -100,8 +100,10 @@ class S3Manager:
             only the first pair will be saved here.
             Make sure to create unique names for form fields!
         """
+        # Fix the naming if passing from none
+
         keys = {
-            name: self.upload_fileobj(file_obj, is_result=is_result)
+            name: self.upload_fileobj(file_obj, file_name=name, is_result=is_result)
             for name, file_obj in files.items()
         }
 

@@ -7,8 +7,6 @@ from celery import Celery
 from oauthlib.oauth2 import WebApplicationClient
 
 from . import config as c
-from .s3_file_manager import S3Manager
-from .tasks_manager import TasksManager
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -18,10 +16,12 @@ celery_worker = Celery(__name__, broker=c.CELERY_BROKER_URL, backend=c.CELERY_BR
 oauth_client = WebApplicationClient(c.GOOGLE_CLIENT_ID)
 
 # Get the s3 file handler
+from .s3_file_manager import S3Manager
 s3 = S3Manager(c.S3_BUCKET)
 
 # Initialize TasksManager so it can read and add all the available
 # tasks from tasks_manager package.
+from .tasks_manager import TasksManager
 TasksManager()
 
 

@@ -12,18 +12,16 @@ TODO:
 """
 
 from io import StringIO, BytesIO, TextIOWrapper
-import time
 
-from ez_script_center.tasks_manager import TasksManager
+from ez_script_center.tasks_manager import TasksManager, TaskBase
 from ez_script_center import s3
-from ez_script_center.database_manager import update_task_history_with_results
 
 from ez_script_center import celery_worker
 from ez_script_center.tasks_manager.scripts import ngram_analysis
 
 
 @TasksManager.register_task()
-@celery_worker.task(bind=True)
+@celery_worker.task(bind=True, base=TaskBase)
 def execute_ngram_analysis(
     self,
     data,
@@ -108,14 +106,9 @@ def execute_ngram_analysis(
     writer.close()
     return_file.seek(0)
 
-    return_file_key = s3.upload_fileobj(
-        return_file,
-        file_name=f"Analysis of {filename.split('.')[0]}.xlsx",
-        is_result=True
+    return_file = {f"Analysis of {filename.split('.')[0]}.xlsx": return_file}
+
+    return self.create_result_payload(
+        message="Performance calculated.",
+        files=return_file
     )
-
-    # Update the database
-
-    return {'current': 5, 'total': 5,
-            'status': "Performance calculated.",
-            'result': return_file_key}

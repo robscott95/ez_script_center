@@ -8,7 +8,6 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(1000))
-    data_store = db.relationship("DataStorage", backref='file_storage', lazy=True)
     task_history = db.relationship("TaskHistory", backref="user_task_history", lazy=True)
 
 
@@ -24,11 +23,11 @@ class Tools(db.Model):
 
 class DataStorage(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     input_info = db.Column(db.JSON())
     input_files = db.Column(postgresql.ARRAY(db.String))
     result_info = db.Column(db.JSON())
     result_files = db.Column(postgresql.ARRAY(db.String))
+    error = db.Column(db.Text())
     task_history = db.relationship("TaskHistory",
                                    backref=backref("data_task_history", uselist=False))
 

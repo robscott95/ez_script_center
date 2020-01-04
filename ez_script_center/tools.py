@@ -57,9 +57,10 @@ def specific_tool(tool_url):
         # TODO jak jest odczytanie pliku DONE
         # Przesyłanie temp plików do jakieś s3 DONE
         # Klasa do zarzadzania zapisywania i odbioru plikow z s3 DONE
-        # rezultatowe pliki takze 
-        # Handle the tasks.py better. Check for raising erros behaviour
-        # Upload automatyczny do bazy/updejt w przypadku zwracania rezultatow
+        # rezultatowe pliki takze DONE
+        # Handle the tasks.py better. Check for raising erros behaviour DONE
+        # Upload automatyczny do bazy/updejt w przypadku zwracania rezultatow DONE
+        # Download przy rezultacie
         # wtforms
         # sprawdzenie jak to przepuscic do kodu
         # danie restrykcji na poziomie template'a htmlowego

@@ -32,10 +32,10 @@ def task_status(task_url, task_id):
         elif task.state == "SUCCESS":
             response = {
                 'state': task.state,
-                'current': task.info.get('current', 1),
-                'total': task.info.get('total', 1),
-                'status': task.info.get('status', ''),
-                'result': task.info['result']
+                'current': 1,
+                'total': 1,
+                'status': task.result('status', 'Task done.'),
+                'result': task.result['result']
             }
 
             task.forget()
@@ -50,7 +50,8 @@ def task_status(task_url, task_id):
             }
 
             if task.failed():
-                response["result"] = str(task.result)
+                current_app.logger.error(f"{task_url}, ID:{task_id} failed because of {task.result}")
+                response["status"] = str(task.result)
                 task.forget()
 
     except Exception as e:
