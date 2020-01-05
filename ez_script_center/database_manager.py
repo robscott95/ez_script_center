@@ -49,7 +49,7 @@ def update_task_history_with_results(
     # update data storage
     data_storage.result_info = result_info
     data_storage.result_files = list(result_files.items()) if result_files is not None else None
-    data_storage.error = str(error)
+    data_storage.error = str(error) if error is not None else None
 
     db.session.merge(data_storage)
     db.session.commit()

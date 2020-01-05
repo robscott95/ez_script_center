@@ -58,7 +58,8 @@ function update_progress(status_url, progress_bar) {
         percent = parseInt(data['current'] * 100 / data['total']);
         progress_bar_inside.attr('aria-valuenow', percent).css('width', percent + "%");
         progress_bar_inside.text(percent + '% ' + data['progressbar_message']);
-        if (data['state'] == 'SUCCESS' || data['state'] != 'FAILURE') {
+        
+        if (data['state'] == 'SUCCESS' || data['state'] == 'FAILURE') {
             progress_bar_inside.removeClass("progress-bar-striped progress-bar-animated")
             
             if (data['state'] == "SUCCESS") {
