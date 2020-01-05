@@ -70,13 +70,14 @@ class TaskBase(celery.Task):
                 error=retval
             )
 
-    def create_result_payload(self, message, files=None, info=None):
+    def create_result_payload(self, progressbar_message, files=None, info=None):
         """Helper function for creating proper return dict.
 
         Passed arguments should be dictionaries.
 
         Args:
-            message (str): Message to display in the progress bar.
+            progressbar_message (str): Message to display in the
+                progress bar.
             files (dict of objs, optional): [description].
                 Defaults to None.
             info ([type], optional): [description]. Defaults to None.
@@ -88,4 +89,6 @@ class TaskBase(celery.Task):
         if files is not None:
             files = s3.upload_files(files, is_result=True)
 
-        return {"status": message, "result_files": files, "result_info": info}
+        result = {"result_files": files, "result_info": info}
+
+        return {"progressbar_message": progressbar_message, "result": result}

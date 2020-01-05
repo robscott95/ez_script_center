@@ -57,10 +57,22 @@ function update_progress(status_url, progress_bar) {
         // update UI
         percent = parseInt(data['current'] * 100 / data['total']);
         progress_bar_inside.attr('aria-valuenow', percent).css('width', percent + "%");
-        progress_bar_inside.text(percent + '% ' + data['status']);
-        if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+        progress_bar_inside.text(percent + '% ' + data['progressbar_message']);
+        if (data['state'] == 'SUCCESS' || data['state'] != 'FAILURE') {
+            progress_bar_inside.removeClass("progress-bar-striped progress-bar-animated")
+            
+            if (data['state'] == "SUCCESS") {
+                progress_bar_inside.addClass("bg-success")
+            }
+            
+            if (data['state'] == "FAILURE") {
+                progress_bar_inside.addClass("bg-danger")
+                console.error("ERROR: " + data['progressbar_message'])
+            }
+
             progress_bar_inside.attr('aria-valuenow', 100).css('width', "100%");
-            progress_bar_inside.text(data['state'] + ': ' + data['status']);
+            progress_bar_inside.text(data['state'] + ': ' + data['progressbar_message']);
+
         }
         else {
             // rerun in 2 seconds

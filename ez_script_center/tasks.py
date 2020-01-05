@@ -20,38 +20,38 @@ def task_status(task_url, task_id):
                 'state': task.state,
                 'current': 0,
                 'total': 1,
-                'status': 'Pending...'
+                'progressbar_message': 'Pending...'
             }
         elif task.state == 'PROGRESS':
             response = {
                 'state': task.state,
                 'current': task.info.get('current', 0),
                 'total': task.info.get('total', 1),
-                'status': task.info.get('status', '')
+                'progressbar_message': task.info.get('progressbar_message', 'In progress...')
             }
         elif task.state == "SUCCESS":
             response = {
                 'state': task.state,
                 'current': 1,
                 'total': 1,
-                'status': task.result('status', 'Task done.'),
+                'progressbar_message': task.result.get('progressbar_message', 'Task done.'),
                 'result': task.result['result']
             }
 
             task.forget()
 
         else:
-            # Anything unhandled.
+            # Anything unhandled and failed tasks.
             response = {
                 'state': task.state,
                 'current': 0,
                 'total': 1,
-                'status': task.status,
+                'progressbar_message': task.info.get('progressbar_message', "No progress bar message")
             }
 
             if task.failed():
                 current_app.logger.error(f"{task_url}, ID:{task_id} failed because of {task.result}")
-                response["status"] = str(task.result)
+                response["progressbar_message"] = str(task.result)
                 task.forget()
 
     except Exception as e:
@@ -60,11 +60,11 @@ def task_status(task_url, task_id):
         current_app.logger.critical(f"{task_url}, ID:{task_id} failed because of {e}")
 
         response = {
-            'state': "FAILED",
+            'state': "FAILURE",
             'current': 0,
             'total': 1,
-            'status': "ERROR",
-            'result': e
+            'progressbar_message': "CRITICAL ERROR, CHECK LOGS",
+            'result': str(e)
         }
 
         task.forget()

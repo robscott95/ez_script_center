@@ -55,7 +55,7 @@ def execute_ngram_analysis(
     """
     self.update_state(
         state="PROGRESS",
-        meta={'current': 0, 'total': 5, 'status': "Starting..."}
+        meta={'current': 0, 'total': 5, 'progressbar_message': "Starting..."}
     )
 
     if lemmatize:
@@ -69,7 +69,7 @@ def execute_ngram_analysis(
 
     self.update_state(
         state="PROGRESS",
-        meta={'current': 1, 'total': 5, 'status': f"Reading {filename}"}
+        meta={'current': 1, 'total': 5, 'progressbar_message': f"Reading {filename}"}
     )
 
     input_data_df = ngram_analysis.pd.read_csv(input_file)
@@ -77,7 +77,7 @@ def execute_ngram_analysis(
     self.update_state(
         state="PROGRESS",
         meta={'current': 2, 'total': 5,
-              'status': f"Cleaning and processing input data..."}
+              'progressbar_message': f"Cleaning and processing input data..."}
     )
 
     input_data_cleaned_df = ngram_analysis.clean_input_data(input_data_df, lemmatize=lemmatize)
@@ -86,13 +86,13 @@ def execute_ngram_analysis(
     self.update_state(
         state="PROGRESS",
         meta={'current': 3, 'total': 5,
-              'status': f"File cleaning and processing done..."}
+              'progressbar_message': f"File cleaning and processing done..."}
     )
 
     self.update_state(
         state="PROGRESS",
         meta={'current': 4, 'total': 5,
-              'status': f"Calculating performance..."}
+              'progressbar_message': f"Calculating performance..."}
     )
 
     ngram_performance_dict = ngram_analysis.calculate_ngram_performance(input_data_with_ngrams_df)
@@ -109,6 +109,6 @@ def execute_ngram_analysis(
     return_file = {f"Analysis of {filename.split('.')[0]}.xlsx": return_file}
 
     return self.create_result_payload(
-        message="Performance calculated.",
+        progressbar_message="Performance calculated.",
         files=return_file
     )
