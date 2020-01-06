@@ -31,6 +31,7 @@ def create_app():
     app.config['SECRET_KEY'] = c.APP_SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = c.DATABASE_URL
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_POOL_RECYCLE"] = 300
     db.init_app(app)
 
     login_manager = LoginManager()

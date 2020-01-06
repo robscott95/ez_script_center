@@ -3,6 +3,7 @@
 
 from . import db
 from .models import DataStorage, TaskHistory
+from time import sleep
 
 
 def db_upload_task_request(user_id, input_info, input_files, tool_id):
@@ -55,3 +56,25 @@ def update_task_history_with_results(
     db.session.commit()
 
     return None
+
+
+def get_task_history(task_id):
+    # Try 3 times to get results, if nothing pops up, return normally
+    for i in range(0, 3):
+        task_history = TaskHistory.query.filter_by(id=task_id).first()
+        if (
+            task_history.data_task_history.result_info is not None
+            or task_history.data_task_history.result_files is not None
+            or task_history.data_task_history.error is not None
+        ):
+            break
+        else:
+            sleep(0.5)
+
+    return {
+        'input_info': task_history.data_task_history.input_info,
+        'input_files': task_history.data_task_history.input_files,
+        'result_info': task_history.data_task_history.result_info,
+        'result_files': task_history.data_task_history.result_files,
+        'error': task_history.data_task_history.error
+    }

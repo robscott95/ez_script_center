@@ -8,6 +8,10 @@ from uuid import uuid4
 from io import StringIO, BytesIO
 
 import boto3
+from botocore.exceptions import ClientError
+from botocore.client import Config
+
+from flask import current_app
 
 
 class S3Manager:
@@ -30,9 +34,11 @@ class S3Manager:
         self.s3_resource = boto3.resource(
             's3',
             aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key
+            aws_secret_access_key=aws_secret_access_key,
+            config=Config(signature_version='s3v4', region_name='eu-central-1')
         )
         self.s3_bucket = self.s3_resource.Bucket(name=bucket_name)
+        self.s3_client = self.s3_resource.meta.client
 
     # is it a result path or input path?
     def upload_fileobj(self, file_obj, file_name=None, is_result=False):
@@ -108,6 +114,26 @@ class S3Manager:
         }
 
         return keys
+
+    def generate_presigned_links(self, files, expiration=3600):
+        try:
+            presigned_links = {}
+
+            for name, key in files.items():
+                presigned_links[name] = self.s3_client.generate_presigned_url(
+                    'get_object',
+                    Params={
+                        'Bucket': self._bucket_name,
+                        'Key': key,
+                        'ResponseContentDisposition': f"attachment; filename = {name}"
+                    },
+                    ExpiresIn=expiration
+                )
+        except ClientError as e:
+            current_app.logging.error(e)
+            return None
+
+        return presigned_links
 
     def download_fileobj(self, key):
         """

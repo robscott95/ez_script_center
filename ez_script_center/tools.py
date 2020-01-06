@@ -60,7 +60,8 @@ def specific_tool(tool_url):
         # rezultatowe pliki takze DONE
         # Handle the tasks.py better. Check for raising erros behaviour DONE
         # Upload automatyczny do bazy/updejt w przypadku zwracania rezultatow DONE
-        # Download przy rezultacie
+        # Download przy rezultacie DONE
+        # user privilages (read and read+write)
         # wtforms
         # sprawdzenie jak to przepuscic do kodu
         # danie restrykcji na poziomie template'a htmlowego
