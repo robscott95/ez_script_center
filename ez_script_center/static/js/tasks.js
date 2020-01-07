@@ -81,6 +81,9 @@ function start_long_task() {
     progress_bar_inside = $('<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>')
     $(progress_bar_outside).append(progress_bar_inside)
     $(progress_bar_outside).after("<hr>")
+    
+    please_wait_message = document.createTextNode('Please wait until the results are shown here below...')
+    $(progress_bar_outside).after(please_wait_message)
 
     // send ajax POST request to start background job
     $.ajax({
@@ -92,7 +95,7 @@ function start_long_task() {
         contentType: false,
         success: function (data, status, request) {
             status_url = request.getResponseHeader('task_status_url');
-            update_progress(status_url, progress_bar_inside, progress_bar_outside);
+            update_progress(status_url, progress_bar_inside, progress_bar_outside, please_wait_message);
         },
         error: function () {
             alert('Unexpected error');
@@ -100,16 +103,13 @@ function start_long_task() {
     });
 }
 
-function update_progress(status_url, progress_bar_inside, progress_bar_outside) {
+function update_progress(status_url, progress_bar_inside, progress_bar_outside, please_wait_message) {
     // send GET request to status URL
     $.getJSON(status_url, function (data) {
         // update UI
         percent = parseInt(data['current'] * 100 / data['total']);
         progress_bar_inside.attr('aria-valuenow', percent).css('width', percent + "%");
         progress_bar_inside.text(percent + '% ' + data['progressbar_message']);
-
-        please_wait_message = $('Please wait until the results are shown here below...')
-        progress_bar_outside.after(please_wait_message)
 
         if (data['state'] == 'SUCCESS' || data['state'] == 'FAILURE') {
             progress_bar_inside.removeClass("progress-bar-striped progress-bar-animated")
@@ -118,20 +118,18 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside) 
             if (data['state'] == "SUCCESS") {
                 progress_bar_inside.addClass("bg-success")
 
-                task_id = status_url.split('/')[status_url.split('/').length - 1]
                 $.getJSON(data['result_url'], function (result_data) {
-                    listResults(result_data, progress_bar_outside, false, true, false)
                     please_wait_message.remove()
+                    listResults(result_data, progress_bar_outside, false, true, false)
                 })
             }
 
             if (data['state'] == "FAILURE") {
                 progress_bar_inside.addClass("bg-danger")
 
-                task_id = status_url.split('/')[status_url.split('/').length - 1]
                 $.getJSON(data['result_url'], function (result_data) {
-                    listResults(result_data, progress_bar_outside, false, false, true)
                     please_wait_message.remove()
+                    listResults(result_data, progress_bar_outside, false, false, true)
                 })
 
                 progress_bar_inside.text("ERROR! Check console logs.");
@@ -147,7 +145,7 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside) 
         else {
             // rerun in 2 seconds
             setTimeout(function () {
-                update_progress(status_url, progress_bar_inside, progress_bar_outside);
+                update_progress(status_url, progress_bar_inside, progress_bar_outside, please_wait_message);
             }, 2000);
         }
     });
