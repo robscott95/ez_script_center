@@ -29,6 +29,7 @@ def menu():
         [tool_info.name, tool_info.short_description, tool_info.url]
         for tool_info in available_tools
         if tool_info.visible
+        and not tool_info.min_req_access_level > current_user.access_level
     ]
 
     return render_template("menu.html", items=available_tools)
@@ -43,6 +44,10 @@ def specific_tool(tool_url):
         return "No such script available", 404
     if not tool_info.visible:
         return f"{tool_info.name} is currently unavailable.", 404
+
+    if tool_info.min_req_access_level > current_user.access_level:
+        current_app.logger.warning(f"User {current_user.id} attempted to access {tool_url}.")
+        return "Access denied. This attempt is logged.", 403
 
     if TasksManager.available_tasks.get(tool_url, None) is None:
         current_app.logger.error(f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).")
@@ -86,5 +91,7 @@ def specific_tool(tool_url):
         return (
             jsonify({}),
             202,
-            {"task_status_url": url_for("tasks.task_status", task_url=tool_url, task_id=task.id)},
+            {"task_status_url": url_for(
+                "tasks.task_status", task_url=tool_url, task_id=task.id
+            )},
         )

@@ -8,6 +8,11 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(1000))
+    # Access levels
+    # 0 - can't access anything
+    # 1 - basic access privilage
+    # 2 - elevated access privilage (for example: to allow executing modifying scripts)
+    access_level = db.Column(db.SmallInteger(), nullable=False, default=1)
     task_history = db.relationship("TaskHistory", backref="user_task_history", lazy=True)
 
 
@@ -18,6 +23,7 @@ class Tools(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=True)
     short_description = db.Column(db.Text())
     long_description = db.Column(db.Text())
+    min_req_access_level = db.Column(db.SmallInteger(), nullable=False, default=1)
     task_history = db.relationship("TaskHistory", backref="tools_task_history", lazy=True)
 
 
