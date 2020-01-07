@@ -42,42 +42,34 @@ function jsonDisplay(json_obj, target_div, is_link = false) {
     } else {
         for (var field_name in json_obj) {
             var content = json_obj[field_name]
-            var text = $("<li>" + content + "</li>")
+            var text = $("<li><b>" + field_name + ": </b>" + content + "</li>")
 
             $(list).append(text)
         }
     }
 }
 
-function listResults(data, target_div, show_input = false, show_error = false) {
-    // abstract this to a helper function to reduce copy code.
-    if (show_input) {
-        input_files_div = $('<div id="input_files"><b>Input files:</b></div>')
-        input_info_div = $('<div id="input_info"><b>Input info:</b></div>')
-
-        $(target_div).after(result_files_div)
-        $(target_div).after(result_info_div)
-
-        input_files = data["input_files"]
-        jsonDisplay(input_files, input_files_div, true)
-
-        input_info = data["input_info"]
-        jsonDisplay(input_info, input_info_div, false)
+function listResults(data, target_div, show_input = false, show_result = false, show_error = false) {
+    function setUpResultSpace(key, title, target_div, data, data_is_files) {
+        div = $('<div id=" ' + key + ' "><b>' + title + ':</b></div>')
+        $(target_div).after(div)
+        data_val = data[key]
+        jsonDisplay(data_val, div, data_is_files)
     }
 
-    result_files_div = $('<div id="result_files"><b>Result files:</b></div>')
-    result_info_div = $('<div id="result_info"><b>Result info:</b></div>')
+    if (show_input) {
+        setUpResultSpace('input_files', 'Input files', target_div, data, true)
+        setUpResultSpace('input_info', 'Input info', target_div, data, false)
+    }
 
-    $(target_div).after(result_files_div)
-    $(target_div).after(result_info_div)
+    if (show_result) {
+        setUpResultSpace('result_files', 'Result files', target_div, data, true)
+        setUpResultSpace('result_info', 'Result info', target_div, data, false)
+    }
 
-    result_files = data["result_files"]
-    jsonDisplay(result_files, result_files_div, true)
-
-    result_info = data["result_info"]
-    jsonDisplay(result_info, result_info_div, false)
-
-    // Add showing errors
+    if (show_error) {
+        setUpResultSpace('error', 'Error', target_div, data, false)
+    }
 }
 
 // AJAX task starter
@@ -116,20 +108,33 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside) 
         progress_bar_inside.attr('aria-valuenow', percent).css('width', percent + "%");
         progress_bar_inside.text(percent + '% ' + data['progressbar_message']);
 
+        please_wait_message = $('Please wait until the results are shown here below...')
+        progress_bar_outside.after(please_wait_message)
+
         if (data['state'] == 'SUCCESS' || data['state'] == 'FAILURE') {
             progress_bar_inside.removeClass("progress-bar-striped progress-bar-animated")
+            progress_bar_inside.text(data['state'] + ': ' + data['progressbar_message']);
 
             if (data['state'] == "SUCCESS") {
                 progress_bar_inside.addClass("bg-success")
 
                 task_id = status_url.split('/')[status_url.split('/').length - 1]
                 $.getJSON(data['result_url'], function (result_data) {
-                    listResults(result_data, progress_bar_outside, show_input = false, show_error = false)
+                    listResults(result_data, progress_bar_outside, false, true, false)
+                    please_wait_message.remove()
                 })
             }
 
             if (data['state'] == "FAILURE") {
                 progress_bar_inside.addClass("bg-danger")
+
+                task_id = status_url.split('/')[status_url.split('/').length - 1]
+                $.getJSON(data['result_url'], function (result_data) {
+                    listResults(result_data, progress_bar_outside, false, false, true)
+                    please_wait_message.remove()
+                })
+
+                progress_bar_inside.text("ERROR! Check console logs.");
 
                 if ('result' in data) {
                     console.error("ERROR: " + data['result'])
@@ -138,8 +143,6 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside) 
                 }
 
             }
-
-            progress_bar_inside.text(data['state'] + ': ' + data['progressbar_message']);
         }
         else {
             // rerun in 2 seconds
