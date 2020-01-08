@@ -77,7 +77,7 @@ class S3Manager:
 
         return key
 
-    def upload_files(self, files, is_result=False):
+    def upload_files(self, files, is_result=False, read_filename_from_file=False):
         """
         Wrapper around upload_fileobj method.
 
@@ -109,7 +109,11 @@ class S3Manager:
         # Fix the naming if passing from none
 
         keys = {
-            name: self.upload_fileobj(file_obj, file_name=name, is_result=is_result)
+            name: self.upload_fileobj(
+                file_obj,
+                file_name=name if not read_filename_from_file else None,
+                is_result=is_result
+            )
             for name, file_obj in files.items()
         }
 
@@ -146,20 +150,3 @@ class S3Manager:
         self.s3_bucket.download_fileobj(key, file_obj)
 
         return (filename, file_obj)
-
-    # def download_files(self, keys, file_obj):
-    #     """
-    #     This is a wrapper of download_fileobj method.
-
-    #     Download multiple filelike_objects by their keys and return
-    #     them in a dict.
-
-    #     The passed keys, are the keys in the dict, while the value is a
-    #     (cleaned filename, filelike obj) tuple.
-    #     """
-    #     files = {}
-
-    #     for key in keys:
-    #         files[key] = self.download_fileobj(key, file_obj=)
-
-    #     return files

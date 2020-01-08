@@ -66,17 +66,16 @@ def specific_tool(tool_url):
         # Handle the tasks.py better. Check for raising erros behaviour DONE
         # Upload automatyczny do bazy/updejt w przypadku zwracania rezultatow DONE
         # Download przy rezultacie DONE
-        # user privilages (read and read+write)
+        # user privilages (read and read+write) DONE
         # wtforms
         # sprawdzenie jak to przepuscic do kodu
         # danie restrykcji na poziomie template'a htmlowego
         # historia
 
-        # Upload file to temp storage.
         # TODO: do for multiple files
 
         input_info = request.form
-        input_files = s3.upload_files(request.files)
+        input_files = s3.upload_files(request.files, read_filename_from_file=True)
 
         task_id = db_upload_task_request(current_user.id, input_info,
                                          input_files, tool_info.id)

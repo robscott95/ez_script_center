@@ -2,6 +2,12 @@
 
 var modal = $("#progressModal")
 
+$("#script-request").keyup(function(event) {
+    if (event.keyCode === 13) {
+        $("#submit-btn").click();
+    }
+});
+
 function toggleModal() {
     if (validateForm() === true) {
         modal.modal("show");
@@ -82,6 +88,7 @@ function start_long_task() {
     $(progress_bar_outside).append(progress_bar_inside)
     $(progress_bar_outside).after("<hr>")
     
+    // Redo this
     please_wait_message = document.createTextNode('Please wait until the results are shown here below...')
     $(progress_bar_outside).after(please_wait_message)
 
@@ -112,6 +119,7 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside, 
         progress_bar_inside.text(percent + '% ' + data['progressbar_message']);
 
         if (data['state'] == 'SUCCESS' || data['state'] == 'FAILURE') {
+            // Let the user know that the update will be shown in a minute.
             progress_bar_inside.removeClass("progress-bar-striped progress-bar-animated")
             progress_bar_inside.text(data['state'] + ': ' + data['progressbar_message']);
 
