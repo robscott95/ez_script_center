@@ -87,10 +87,6 @@ function start_long_task() {
     progress_bar_inside = $('<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>')
     $(progress_bar_outside).append(progress_bar_inside)
     $(progress_bar_outside).after("<hr>")
-    
-    // Redo this
-    please_wait_message = document.createTextNode('Please wait until the results are shown here below...')
-    $(progress_bar_outside).after(please_wait_message)
 
     // send ajax POST request to start background job
     $.ajax({
@@ -102,7 +98,7 @@ function start_long_task() {
         contentType: false,
         success: function (data, status, request) {
             status_url = request.getResponseHeader('task_status_url');
-            update_progress(status_url, progress_bar_inside, progress_bar_outside, please_wait_message);
+            update_progress(status_url, progress_bar_inside, progress_bar_outside);
         },
         error: function () {
             alert('Unexpected error');
@@ -110,7 +106,7 @@ function start_long_task() {
     });
 }
 
-function update_progress(status_url, progress_bar_inside, progress_bar_outside, please_wait_message) {
+function update_progress(status_url, progress_bar_inside, progress_bar_outside) {
     // send GET request to status URL
     $.getJSON(status_url, function (data) {
         // update UI
@@ -122,6 +118,9 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside, 
             // Let the user know that the update will be shown in a minute.
             progress_bar_inside.removeClass("progress-bar-striped progress-bar-animated")
             progress_bar_inside.text(data['state'] + ': ' + data['progressbar_message']);
+
+            please_wait_message = document.createTextNode('Please wait until the results are shown here below...')
+            $(progress_bar_outside).after(please_wait_message)
 
             if (data['state'] == "SUCCESS") {
                 progress_bar_inside.addClass("bg-success")
@@ -153,7 +152,7 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside, 
         else {
             // rerun in 2 seconds
             setTimeout(function () {
-                update_progress(status_url, progress_bar_inside, progress_bar_outside, please_wait_message);
+                update_progress(status_url, progress_bar_inside, progress_bar_outside);
             }, 2000);
         }
     });

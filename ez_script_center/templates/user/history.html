@@ -1,0 +1,97 @@
+{% extends "layout.html"%}
+
+{%block body%}
+
+<div class="table-responsive" style="
+    width: 80%;
+    margin: 0 auto;
+    margin-top: 80px;
+">
+<table class="table table-hover">
+    <thead style="background-color: #007bff; color: white;">
+        <tr>
+            <th scope="col">Task ID</th>
+            <th scope="col">Tool name</th>
+            <th scope="col">Input info</th>
+            <th scope="col">Input files</th>
+            <th scope="col">Result info</th>
+            <th scope="col">Result files</th>
+            <th scope="col">Error</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for task in task_history_content %}
+        {% if task.error is not none %}
+        <tr class="table-danger">
+        {% else %}
+        <tr>
+        {% endif %}
+            <th scope="row">{{ task.task_id }}</td>
+            <td><a href="{{ task.tool_url }}">{{ task.tool_name }}</a></td>
+            <td>
+                {% if task.input_info is not none %}
+                    {% for name, content in task.input_info.items() %}
+                    {% if name != "csrf_token" %}
+                        <b>{{ name }}</b>: {{ content }}<br />
+                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>
+                {% if task.input_files is not none %}
+                    {% for field, file_url in task.input_files.items() %}
+                        <a href="{{ file_url }}">{{ field }}</a><br />
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>
+                {% if task.result_info is not none %}
+                    {% for name, content in task.result_info.items() %}
+                        <b>{{ name }}</b>: {{ content }}<br />
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>
+                {% if task.result_files is not none %}
+                    {% for field, file_url in task.result_files.items() %}
+                        <a href="{{ file_url }}">{{ field }}</a><br />
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>{{ task.error }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        {% if task_history.has_prev %}
+            <li class="page-item"> <a class="page-link" href="{{ url_for('user.history', page=[task_history.prev_num]) }}">Previous</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {% endif %}
+
+        {% for page in task_history.iter_pages(left_edge=2, left_current=3, right_current=3, right_edge=2) %}
+        {% if page %}
+            {% if page != task_history.page %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('user.history', page=page) }}">{{ page }}</a></li>
+            {% else %}
+                <li class="page-item active"><a class="page-link" href="#">{{ page }}<span class="sr-only">(current)</span></a></li>
+            {% endif %}
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#"><span class=ellipsis>…</span></a></li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if task_history.has_next %}
+            <li class="page-item"> <a class="page-link" href="{{ url_for('user.history', page=[task_history.next_num]) }}">Next</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+</div>
+
+{%endblock%}

@@ -30,6 +30,8 @@ pyyaml = "*"
 boto3 = "*"
 flask-wtf = "*"
 xlsxwriter = "*"
+wtforms = "*"
+bootstrap-flask = "*"
 
 [requires]
 python_version = "3.7"

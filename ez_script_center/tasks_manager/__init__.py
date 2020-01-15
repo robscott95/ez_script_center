@@ -1,5 +1,5 @@
 """
-Module for handling user defined tasks.
+Module for handling user defined tasks and it's respective forms.
 
 In __init__ of your app please import and initialize the
 TaskManager object.
@@ -9,8 +9,6 @@ from os.path import dirname, basename, join
 from glob import glob
 
 import celery
-from flask_login import current_user
-
 
 from ez_script_center import s3
 from ez_script_center.database_manager import update_task_history_with_results
@@ -20,6 +18,7 @@ pwd = dirname(__file__)
 
 class TasksManager:
     available_tasks = {}
+    available_forms = {}
 
     def __init__(self):
         for x in glob(join(pwd, "*.py")):
@@ -31,18 +30,35 @@ class TasksManager:
                 )
 
     @staticmethod
-    def register_task(url=None):
-        # Make so that if URL is None, it makes the filename the url.
+    def _url_creator(url):
+        """Make so that if URL is None, it makes the filename the url.
+        """
         if url is None:
-            frame = inspect.stack()[1]
+            frame = inspect.stack()[2]
             module = inspect.getmodule(frame[0])
             filename = module.__file__[:-3]
             # snake_case won't look good. More compliant url.
             filename = filename.replace("_", "-")
             url = basename(filename)
 
+        return url
+
+    @staticmethod
+    def register_task(url=None):
+        url = TasksManager._url_creator(url)
+
         def inner_func(task):
             TasksManager.__dict__["available_tasks"][url] = task
+            return task
+
+        return inner_func
+
+    @staticmethod
+    def register_form(url=None):
+        url = TasksManager._url_creator(url)
+
+        def inner_func(task):
+            TasksManager.__dict__["available_forms"][url] = task
             return task
 
         return inner_func

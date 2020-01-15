@@ -24,7 +24,6 @@ s3 = S3Manager(c.S3_BUCKET)
 from .tasks_manager import TasksManager
 TasksManager()
 
-
 def create_app():
     app = Flask(__name__)
 
@@ -65,6 +64,9 @@ def create_app():
 
     from .tasks import tasks as tasks_blueprint
     app.register_blueprint(tasks_blueprint, url_prefix="/tasks")
+
+    from .user import user as user_blueprint
+    app.register_blueprint(user_blueprint, url_prefix="/user")
 
     return app
 

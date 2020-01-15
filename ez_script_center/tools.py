@@ -9,7 +9,8 @@ from flask import (
     current_app
 )
 from flask_login import login_required, current_user
-from flask_wtf import FlaskForm
+# from flask_wtf import FlaskForm
+# import wtforms
 
 from .database_manager import db_upload_task_request
 from .models import Tools
@@ -56,24 +57,14 @@ def specific_tool(tool_url):
     if request.method == "GET":
         tool_desc = Markup(tool_info.long_description)
 
+        # Add rendering of wtforms. Lots of work needed with a good
+        # jinja macro.
+        # form = n_gram_analysis_form()
+        # return render_template("tool_display.html", form=form)
+
         return render_template(f"{tool_url}.html", long_desc=tool_desc)
 
     if request.method == "POST":
-        # TODO jak jest odczytanie pliku DONE
-        # Przesyłanie temp plików do jakieś s3 DONE
-        # Klasa do zarzadzania zapisywania i odbioru plikow z s3 DONE
-        # rezultatowe pliki takze DONE
-        # Handle the tasks.py better. Check for raising erros behaviour DONE
-        # Upload automatyczny do bazy/updejt w przypadku zwracania rezultatow DONE
-        # Download przy rezultacie DONE
-        # user privilages (read and read+write) DONE
-        # wtforms
-        # sprawdzenie jak to przepuscic do kodu
-        # danie restrykcji na poziomie template'a htmlowego
-        # historia
-
-        # TODO: do for multiple files
-
         input_info = request.form
         input_files = s3.upload_files(request.files, read_filename_from_file=True)
 
