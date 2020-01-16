@@ -1,2 +1,2 @@
-web: waitress-serve --port=$PORT analysts_toolbox:app
-worker: celery worker -A celery_worker.celery --loglevel=info
+web: waitress-serve --port=$PORT ez_script_center:app
+worker: celery worker -A ez_script_center.celery_worker --loglevel=info
