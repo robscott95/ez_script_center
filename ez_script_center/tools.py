@@ -43,14 +43,15 @@ def specific_tool(tool_url):
     tool_info = Tools.query.filter_by(url=tool_url).first()
     if tool_info is None:
         return "No such script available", 404
-    if not tool_info.visible:
+
+    elif not tool_info.visible:
         return f"{tool_info.name} is currently unavailable.", 404
 
-    if tool_info.min_req_access_level > current_user.access_level:
+    elif tool_info.min_req_access_level > current_user.access_level:
         current_app.logger.warning(f"User {current_user.id} attempted to access {tool_url}.")
         return "Access denied. This attempt is logged.", 403
 
-    if TasksManager.available_tasks.get(tool_url, None) is None:
+    elif TasksManager.available_tasks.get(tool_url, None) is None:
         current_app.logger.error(f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).")
         return f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).", 500
 

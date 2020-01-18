@@ -19,6 +19,10 @@ from ez_script_center import s3
 from ez_script_center import celery_worker
 from ez_script_center.tasks_manager.scripts import ngram_analysis
 
+from flask_wtf import FlaskForm
+import wtforms
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+
 
 @TasksManager.register_task()
 @celery_worker.task(bind=True, base=TaskBase)
@@ -112,3 +116,13 @@ def execute_ngram_analysis(
         progressbar_message="Performance calculated.",
         files=return_file
     )
+
+
+@TasksManager.register_form()
+class n_gram_analysis_form(FlaskForm):
+    string_field_test = wtforms.StringField(
+        "String Field Test", [wtforms.validators.Length(3, 20, message="Min. 3 Max 20")])
+    copy_performance = wtforms.MultipleFileField(
+        "Main File", [FileRequired("File required")]
+    )
+

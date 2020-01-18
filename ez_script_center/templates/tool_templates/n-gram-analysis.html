@@ -1,50 +1,18 @@
-{% extends "layout.html"%}
+{% extends "tool_templates/_form_wrapper.html" %}
 
-{%block body%}
+{% block form %}
 
-<div class="wrapper-form">
+    <div class="form-group custom-file" style="margin-bottom: 1rem!important;">
+        <input name="copy_performance" type="file" class="custom-file-input" id="customFile" required>
+        <label class="custom-file-label" for="customFile">Choose file</label>
+    </div>
 
-    <form id="script-request" class="needs-validation" enctype="multipart/form-data" action="#" method="post" role="form" novalidate>
-        <div id="tool-description">
-            <h3>Description</h3>
-            {{long_desc}}
-        </div>
-        <br />
+    <script>
+        // Add the following code if you want the name of the file appear on select
+        $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
 
-        <h3>Settings</h3>
-
-        <div class="custom-file">
-            <input name="copy_performance" type="file" class="custom-file-input" id="customFile">
-            <label class="custom-file-label" for="customFile">Choose file</label>
-        </div>
-
-        <script>
-            // Add the following code if you want the name of the file appear on select
-            $(".custom-file-input").on("change", function() {
-                var fileName = $(this).val().split("\\").pop();
-                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-            });
-        </script>
-
-        <div class="form-group">
-            <label for="platform"><b>Additional:</b></label>
-            <select name="option1" class="form-control" id="platform" required>
-                <option>Facebook</option>
-                <option>Google Ads</option>
-            </select>
-        </div>
-
-         <div class="form-group">
-            <label for="accountId"><b>Account ID:</b></label>
-            <input name="option2" type="number" class="form-control" id="accountId" placeholder="123468976" required>
-        </div>
-
-       
-        <div class="text-center">
-            <button id="submit-btn" type="button" class="btn btn-primary btn-lg align-self-center" onclick="toggleModal()">Execute script</button>
-        </div>
-    </form>
-</div>  
-
-{% include 'progress.html' %}
 {%endblock%}
