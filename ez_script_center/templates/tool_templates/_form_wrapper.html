@@ -5,13 +5,15 @@
 <div class="wrapper-form">
 
     <form id="script-request" class="needs-validation" enctype="multipart/form-data" action="#" method="post" role="form" novalidate>
+        <h1> {{ tool_name }}</h1>
+        <br />
         <div id="tool-description">
-            <h3>Description</h3>
+            <h4>Description</h4>
             {{long_desc}}
         </div>
         <br />
 
-        <h3>Input settings:</h3>
+        <h4>Input settings:</h4>
 
         {% block form %}
 
