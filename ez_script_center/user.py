@@ -40,12 +40,13 @@ def history():
                 s3.generate_presigned_links(dict(task.data_task_history.input_files))
                 if task.data_task_history.input_files is not None else None
             ),
-            "result_info": task.data_task_history.result_info,
+            "result_info": task.data_task_history.result_info if task.ready else {"Task info": "Not ready! Refresh for an update..."},
             "result_files": (
                 s3.generate_presigned_links(dict(task.data_task_history.result_files))
                 if task.data_task_history.result_files is not None else None
             ),
-            "error": task.data_task_history.error
+            "error": task.data_task_history.error,
+            "ready": task.ready
         }
         for task in task_history.items
     ]

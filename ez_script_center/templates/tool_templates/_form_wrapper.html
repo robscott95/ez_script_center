@@ -1,0 +1,27 @@
+{% extends "layout.html"%}
+
+{%block body%}
+
+<div class="wrapper-form">
+
+    <form id="script-request" class="needs-validation" enctype="multipart/form-data" action="#" method="post" role="form" novalidate>
+        <div id="tool-description">
+            <h3>Description</h3>
+            {{long_desc}}
+        </div>
+        <br />
+
+        <h3>Input settings:</h3>
+
+        {% block form %}
+
+        {% endblock%}
+    <br />
+    <div class="text-center">
+            <button id="submit-btn" type="button" class="btn btn-primary btn-lg align-self-center" onclick="toggleModal()">Execute script</button>
+        </div>
+    </form>
+</div>  
+
+{% include 'progress.html' %}
+{%endblock%}

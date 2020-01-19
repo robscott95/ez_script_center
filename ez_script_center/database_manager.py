@@ -24,7 +24,8 @@ def db_upload_task_request(user_id, input_info, input_files, tool_id):
     task_history = TaskHistory(
         user_id=user_id,
         data_task_history=data_storage,
-        tool_id=tool_id
+        tool_id=tool_id,
+        ready=False
     )
 
     db.session.add(task_history)
@@ -45,12 +46,15 @@ def update_task_history_with_results(
 ):
     # Get the user_id and data_storage_id
     task_history = TaskHistory.query.filter_by(id=task_id).first()
-    data_storage = DataStorage.query.filter_by(id=task_history.task_data_id).first()
+    data_storage = task_history.data_task_history
 
     # update data storage
     data_storage.result_info = result_info
     data_storage.result_files = list(result_files.items()) if result_files is not None else None
     data_storage.error = str(error) if error is not None else None
+
+    # the task is done, so it's ready.
+    task_history.ready = True
 
     db.session.merge(data_storage)
     db.session.commit()

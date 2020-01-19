@@ -43,3 +43,4 @@ class TaskHistory(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     task_data_id = db.Column(db.Integer, db.ForeignKey("data_storage.id"))
     tool_id = db.Column(db.Integer, db.ForeignKey("tools.id"))
+    ready = db.Column(db.Boolean(), nullable=False, default=False)

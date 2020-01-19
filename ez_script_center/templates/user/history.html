@@ -1,13 +1,13 @@
 {% extends "layout.html"%}
 
 {%block body%}
-
 <div class="table-responsive" style="
     width: 80%;
     margin: 0 auto;
-    margin-top: 80px;
+    margin-top: 30px;
 ">
-<table class="table table-hover">
+<div id="alert-box" class=""></div>
+<table id="user-history" class="table table-hover">
     <thead style="background-color: #007bff; color: white;">
         <tr>
             <th scope="col">Task ID</th>
@@ -23,10 +23,12 @@
     {% for task in task_history_content %}
         {% if task.error is not none %}
         <tr class="table-danger">
+        {% elif task.ready == false %}
+        <tr class="table-warning task-not-ready">
         {% else %}
         <tr>
         {% endif %}
-            <th scope="row">{{ task.task_id }}</td>
+            <th scope="row">{{task.task_id}}</th>
             <td><a href="{{ task.tool_url }}">{{ task.tool_name }}</a></td>
             <td>
                 {% if task.input_info is not none %}
@@ -93,5 +95,5 @@
 </nav>
 
 </div>
-
+    <script src="{{url_for('static', filename='js/history.js')}}"></script>
 {%endblock%}
