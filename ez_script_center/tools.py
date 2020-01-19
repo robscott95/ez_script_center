@@ -63,8 +63,8 @@ def specific_tool(tool_url):
         # form = n_gram_analysis_form()
         # return render_template("tool_display.html", form=form)
 
-        return render_template(f"{tool_url}.html", 
-                               long_desc=tool_desc, 
+        return render_template(f"{tool_url}.html",
+                               long_desc=tool_desc,
                                tool_name=tool_info.name)
 
     if request.method == "POST":

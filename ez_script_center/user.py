@@ -37,12 +37,15 @@ def history():
             "tool_url": task.tools_task_history.url,
             "input_info": task.data_task_history.input_info,
             "input_files": (
-                s3.generate_presigned_links(dict(task.data_task_history.input_files))
+                s3.generate_presigned_links(task.data_task_history.input_files)
                 if task.data_task_history.input_files is not None else None
             ),
-            "result_info": task.data_task_history.result_info if task.ready else {"Task info": "Not ready! Refresh for an update..."},
+            "result_info": (
+                task.data_task_history.result_info
+                if task.ready else {"Task info": "Not ready! Refresh for an update..."}
+            ),
             "result_files": (
-                s3.generate_presigned_links(dict(task.data_task_history.result_files))
+                s3.generate_presigned_links(task.data_task_history.result_files)
                 if task.data_task_history.result_files is not None else None
             ),
             "error": task.data_task_history.error,

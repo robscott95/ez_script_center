@@ -17,7 +17,9 @@ from flask import current_app
 class S3Manager:
     """
     Class for managing s3 file uploading and downloading.
-    Instantiate object with connection info
+
+    If AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in env variables
+    it will automatically use those.
     """
     def __init__(
         self,
@@ -77,7 +79,7 @@ class S3Manager:
 
         return key
 
-    def upload_files(self, files, is_result=False, read_filename_from_file=False):
+    def upload_files(self, files, is_result=False, read_filename_from_file=True):
         """
         Wrapper around upload_fileobj method.
 
@@ -91,6 +93,11 @@ class S3Manager:
                 pathway specified on installation? By default it's False
                 and uploads to the input path.
                 Defaults to False.
+            read_filename_from_file (bool, optional): upload_fileobj
+                method will try to read the filename's name.
+                If False is passed, then the key value from the passed
+                dictionary will be used as the filename.
+                Defaults to True
 
         Returns:
             dict of str: A dict containing a key which is the key of the
@@ -120,19 +127,49 @@ class S3Manager:
         return keys
 
     def generate_presigned_links(self, files, expiration=3600):
+        """Based on a list of lists [[name_1, key_1], [name_2, key_2]],
+        which is the standard way we're keeping files in database,
+        we generate presigned links from s3 into a dict of tuples
+        {key_1: (url, filename, name_1)}
+
+        Args:
+            files (list of lists of paired strings):
+                [[name_1, key_1], [name_2, key_2]]
+            expiration (int, optional): When the presigned links should
+                expire. Defaults to 3600 seconds.
+
+        Returns:
+            dict of tuples: Dict with keys corresponding to s3 keys and
+                the value is a tuple containing the url, filename, and
+                name which is directly taken from the list of lists.
+
+        Examples:
+            >>> s3 = S3Manager("sample_bucket")
+            >>> sample_task_files = [["main_file", "s3key_1"],
+                                     ["mapper_file", "s3key_2"]]
+            >>> s3.generate_presigned_links(sample_task_files)
+            {
+                "s3key_1": (https://presigned_url_key_1...,
+                            "sample_file1.txt", "main_file"),
+                "s3key_2": (https://presigned_url_key_2...,,
+                            "mapper_file.txt", "mapper_file")
+            }
+        """
         try:
             presigned_links = {}
-
-            for name, key in files.items():
-                presigned_links[name] = self.s3_client.generate_presigned_url(
+            # Dodaj fieldname
+            for name, key in files:
+                filename = key.split(".", 3)[-1]
+                presigned_url = self.s3_client.generate_presigned_url(
                     'get_object',
                     Params={
                         'Bucket': self._bucket_name,
                         'Key': key,
-                        'ResponseContentDisposition': f"attachment; filename = {name}"
+                        'ResponseContentDisposition': f"attachment; filename = {filename}"
                     },
                     ExpiresIn=expiration
                 )
+                presigned_links[key] = (presigned_url, filename, name)
         except ClientError as e:
             current_app.logging.error(e)
             return None

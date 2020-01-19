@@ -29,7 +29,7 @@ function validateForm() {
     return form_valid;
 };
 
-function jsonDisplay(json_obj, target_div, is_link = false) {
+function jsonDisplay(json_obj, target_div, is_link = false, is_error = false) {
     if (json_obj == null) {
         return;
     }
@@ -38,17 +38,23 @@ function jsonDisplay(json_obj, target_div, is_link = false) {
     target_div.append(list);
 
     if (is_link) {
-        for (var filename in json_obj) {
-            var link = json_obj[filename];
-            var text = $("<li><a href='" + link + "'>" + filename + "</a></li>");
+        for (var key in json_obj) {
+            let link = json_obj[key][0];
+            let filename = json_obj[key][1];
+            let name = json_obj[key][2]
+            let text = $("<li><b>" + name + ": </b><a href='" + link + "'>" + filename + "</a></li>");
 
             $(list).append(text);
         }
+    } else if (is_error) {
+        let content = json_obj
+        let text = $("<li>" + content + "</li>")
 
+        $(list).append(text)
     } else {
         for (var field_name in json_obj) {
-            var content = json_obj[field_name]
-            var text = $("<li><b>" + field_name + ": </b>" + content + "</li>")
+            let content = json_obj[field_name]
+            let text = $("<li><b>" + field_name + ": </b>" + content + "</li>")
 
             $(list).append(text)
         }
@@ -56,11 +62,11 @@ function jsonDisplay(json_obj, target_div, is_link = false) {
 }
 
 function listResults(data, target_div, show_input = false, show_result = false, show_error = false) {
-    function setUpResultSpace(key, title, target_div, data, data_is_files) {
+    function setUpResultSpace(key, title, target_div, data, data_is_files, is_error=false) {
         div = $('<div id=" ' + key + ' "><b>' + title + ':</b></div>')
         $(target_div).after(div)
         data_val = data[key]
-        jsonDisplay(data_val, div, data_is_files)
+        jsonDisplay(data_val, div, data_is_files, is_error)
     }
 
     if (show_input) {
@@ -74,7 +80,7 @@ function listResults(data, target_div, show_input = false, show_result = false, 
     }
 
     if (show_error) {
-        setUpResultSpace('error', 'Error', target_div, data, false)
+        setUpResultSpace('error', 'Error', target_div, data, false, true)
     }
 }
 
@@ -133,8 +139,10 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside) 
 
             if (data['state'] == "FAILURE") {
                 progress_bar_inside.addClass("bg-danger")
-
+                
+                console.log("test0")
                 $.getJSON(data['result_url'], function (result_data) {
+                    console.log("test1")
                     please_wait_message.remove()
                     listResults(result_data, progress_bar_outside, false, false, true)
                 })

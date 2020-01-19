@@ -54,7 +54,8 @@ def task_status(task_url, task_id):
                 'state': task.state,
                 'current': 1,
                 'total': 1,
-                'progressbar_message': progressbar_message
+                'progressbar_message': progressbar_message,
+                'result_url': url_for("tasks.task_result", task_id=task_id)
             }
 
             if task.failed():
@@ -67,13 +68,13 @@ def task_status(task_url, task_id):
         current_app.logger.critical(f"{task_url}, ID:{task_id} failed because of {e}")
 
         response = {
-            'state': " ",
-            'current': 0,
+            'state': "FAILURE",
+            'current': 1,
             'total': 1,
             'progressbar_message': "CRITICAL ERROR, CHECK LOGS",
-            'result': str(e)
+            'result': str(e),
+            'result_url': url_for("tasks.task_result", task_id=task_id)
         }
-
         task.forget()
 
     return jsonify(response)
@@ -85,12 +86,12 @@ def task_result(task_id):
 
     if results['input_files'] is not None:
         results['input_files'] = s3.generate_presigned_links(
-            dict(results['input_files'])
+            results['input_files']
         )
 
     if results['result_files'] is not None:
         results['result_files'] = s3.generate_presigned_links(
-            dict(results['result_files'])
+            results['result_files']
         )
 
     return jsonify(results)

@@ -7,16 +7,16 @@
     margin-top: 30px;
 ">
 <div id="alert-box" class=""></div>
-<table id="user-history" class="table table-hover">
-    <thead style="background-color: #007bff; color: white;">
+<table id="user-history" class="table table-hover table-bordered">
+    <thead style="background-color: #007bff; color: white; text-align: center;">
         <tr>
-            <th scope="col">Task ID</th>
-            <th scope="col">Tool name</th>
-            <th scope="col">Input info</th>
-            <th scope="col">Input files</th>
-            <th scope="col">Result info</th>
-            <th scope="col">Result files</th>
-            <th scope="col">Error</th>
+            <th scope="col" class="align-middle">Task ID</th>
+            <th scope="col" class="align-middle">Tool name</th>
+            <th scope="col" class="align-middle">Input info</th>
+            <th scope="col" class="align-middle">Input files</th>
+            <th scope="col" class="align-middle">Result info</th>
+            <th scope="col" class="align-middle">Result files</th>
+            <th scope="col" class="align-middle">Error</th>
         </tr>
     </thead>
     <tbody>
@@ -41,8 +41,8 @@
             </td>
             <td>
                 {% if task.input_files is not none %}
-                    {% for field, file_url in task.input_files.items() %}
-                        <a href="{{ file_url }}">{{ field }}</a><br />
+                    {% for file_url, filename, name in task.input_files.values() %}
+                        <b>{{ name }}: </b><a href="{{ file_url }}">{{ filename }}</a><br />
                     {% endfor %}
                 {% endif %}
             </td>
@@ -55,12 +55,16 @@
             </td>
             <td>
                 {% if task.result_files is not none %}
-                    {% for field, file_url in task.result_files.items() %}
-                        <a href="{{ file_url }}">{{ field }}</a><br />
+                    {% for file_url, filename, name in task.result_files.values() %}
+                        <b>{{ name }}: </b><a href="{{ file_url }}">{{ filename }}</a><br />
                     {% endfor %}
                 {% endif %}
             </td>
-            <td>{{ task.error }}</td>
+            <td>
+            {% if task.error is not none %}
+                {{ task.error }}
+            {% endif %}
+            </td>
         </tr>
     {% endfor %}
     </tbody>

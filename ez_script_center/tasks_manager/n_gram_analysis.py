@@ -104,13 +104,14 @@ def execute_ngram_analysis(
     # Drop the file into a BytesIO file-like object so it can be safely
     # uploaded to s3
     return_file = BytesIO()
+    return_file.filename = f"Analysis of {filename.split('.')[0]}.xlsx"
     writer = ngram_analysis.pd.ExcelWriter(return_file, engine="xlsxwriter")
     for ngram, performance_df in ngram_performance_dict.items():
         performance_df.to_excel(writer, sheet_name=ngram, index=False)
     writer.close()
     return_file.seek(0)
 
-    return_file = {f"Analysis of {filename.split('.')[0]}.xlsx": return_file}
+    return_file = {f"N-gram Analysis": return_file}
 
     return self.create_result_payload(
         progressbar_message="Performance calculated.",
@@ -125,4 +126,3 @@ class n_gram_analysis_form(FlaskForm):
     copy_performance = wtforms.MultipleFileField(
         "Main File", [FileRequired("File required")]
     )
-

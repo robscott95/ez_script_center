@@ -103,7 +103,7 @@ class TaskBase(celery.Task):
         """
 
         if files is not None:
-            files = s3.upload_files(files, is_result=True)
+            files = s3.upload_files(files, is_result=True, read_filename_from_file=True)
 
         result = {"result_files": files, "result_info": info}
 
