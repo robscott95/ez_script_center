@@ -47,7 +47,7 @@ def task_status(task_url, task_id):
             # Anything unhandled and failed tasks.
             try:
                 progressbar_message = task.info.get('progressbar_message', "No progress bar message")
-            except KeyError:
+            except AttributeError:
                 progressbar_message = str(task.result)
 
             response = {
@@ -60,6 +60,7 @@ def task_status(task_url, task_id):
 
             if task.failed():
                 current_app.logger.error(f"{task_url}, ID:{task_id} failed because of {task.result}")
+                response["result"] = progressbar_message
                 task.forget()
 
     except Exception as e:

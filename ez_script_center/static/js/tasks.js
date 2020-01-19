@@ -140,20 +140,14 @@ function update_progress(status_url, progress_bar_inside, progress_bar_outside) 
             if (data['state'] == "FAILURE") {
                 progress_bar_inside.addClass("bg-danger")
                 
-                console.log("test0")
                 $.getJSON(data['result_url'], function (result_data) {
-                    console.log("test1")
                     please_wait_message.remove()
                     listResults(result_data, progress_bar_outside, false, false, true)
                 })
 
                 progress_bar_inside.text("ERROR! Check console logs.");
 
-                if ('result' in data) {
-                    console.error("ERROR: " + data['result'])
-                } else {
-                    console.error("ERROR: " + data['progressbar_message'])
-                }
+                console.error("ERROR: " + data['result'] + " (task_id: " + status_url.split("/")[4] + ")")
 
             }
         }
