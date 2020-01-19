@@ -5,6 +5,15 @@ body {
 #tool-description {
 }
 
+#menu-header {
+  margin: 3rem auto;
+
+  .input-group {
+    width: 325px;
+    margin: 0 auto;
+  }
+}
+
 #script-request {
   width: 80%;
   margin: 0 auto;

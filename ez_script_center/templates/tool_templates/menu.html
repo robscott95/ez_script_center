@@ -1,24 +1,27 @@
 {% extends "layout.html"%}
 
 {% block body %}
-<div class="jumbotron text-center" style="background-color: #fdfdfd">
+<div id="menu-header" class="container text-center" style="">
     <h1>Choose your tool</h1>
+    
+    <div class="input-group mt-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">&#x1F50D;</span>
+        </div>
+        <input type="text" class="form-control" id="menuSearchBar" onkeyup="menuSearch(menuSearchBar)" placeholder="Search for the tool name..." aria-label="Username" aria-describedby="basic-addon1">
+    </div>
 </div>
 
-<div class="container">
-    
+<div id="tool-menu" class="container">
     {% for tool_row in items | batch(3, '') %}
     <div class="row align-items-center justify-content-center">
         {% for tool_item in tool_row %}
             {% if tool_item != '' %}
                 <a class="col-3 text-center menu-box-item" href={{ tool_item[2] }}>
                     <h3>{{ tool_item[0] }}</h3>
-                    <p>{{ tool_item[1] }}</p>   
-            {% else %}
-                <a>
+                    <p>{{ tool_item[1] }}</p>
+                </a>
             {% endif %}
-            
-            </a>
         {% endfor %}
     </div>
     {% endfor %}
