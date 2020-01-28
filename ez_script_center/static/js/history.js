@@ -62,3 +62,19 @@ function updateTaskStatus(task, alertBox) {
         }
     });
 };
+
+// search behaviour
+$(document).ready(function() {
+    let searchParams = new URLSearchParams(window.location.search)
+    console.log(searchParams)
+})
+
+$('#history-search-form, div').submit(function () {
+    $(this)
+        .find('input[name]')
+        .filter(function () {
+            return !this.value;
+        })
+        .prop('name', '');
+    
+});

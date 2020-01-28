@@ -9,9 +9,11 @@ from flask import (
     current_app
 )
 from flask_login import login_required, current_user
-from sqlalchemy.orm import load_only
+from sqlalchemy.sql.expression import cast
+from sqlalchemy import String as sql_string
+from sqlalchemy.dialects import postgresql
 
-from .models import TaskHistory
+from .models import TaskHistory, DataStorage, Tools
 from . import s3
 
 user = Blueprint("user", __name__, template_folder="templates/user")
@@ -23,9 +25,42 @@ def history():
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 10))
 
+    # Overall, I think it would be better to create a table for each
+    # element and just reference it approprietly than to do this mental
+    # gymnastics. One to many for data_input and data_files would be
+    # sufficient.
+    # This method of simple ilike is sufficient with current database
+    # design, but if we want something more complex, then it'd be easier
+    # to have a simpler database.
+
+    def create_filter(value, query):
+        filter_val = request.args.get(value, '')
+
+        if filter_val == '':
+            return None
+
+        filter_val = filter_val.replace(' ', '%')
+
+        return TaskHistory.data_task_history.has(query(f'%{filter_val}%'))
+
+    filter_fields_and_queries = {
+        "tool_name": Tools.name.ilike,
+        "input_info": cast(DataStorage.input_info, sql_string).ilike,
+        "input_file": cast(DataStorage.input_files, sql_string).ilike,
+        "result_info": cast(DataStorage.result_info, sql_string).ilike,
+        "result_file": cast(DataStorage.result_files, sql_string).ilike,
+        "error": DataStorage.error.ilike
+    }
+
+    filters = [
+        create_filter(value, query)
+        for value, query in filter_fields_and_queries.items() 
+        if create_filter(value, query) is not None
+    ]
+
     task_history = (
         TaskHistory.query
-        .filter_by(user_id=current_user.id)
+        .filter(*filters)
         .order_by(TaskHistory.id.desc())
         .paginate(page, per_page, max_per_page=20, error_out=False)
     )
