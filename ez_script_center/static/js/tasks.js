@@ -76,7 +76,7 @@ function listResults(data, target_div, show_input = false, show_result = false, 
 function validateForm() {
     function clearErrors() {
         $('.invalid-feedback').remove();
-        $('.is-invalid').addClass("is-valid").removeClass("is-invalid")
+        $('.form-control, .form-control-file').addClass("is-valid").removeClass("is-invalid")
     }
 
     function showErrors(data) {

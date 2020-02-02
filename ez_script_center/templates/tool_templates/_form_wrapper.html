@@ -29,7 +29,7 @@
     </div>
 
     <script>
-        $(".form-control-file").each(function (formField) {
+        $("input[type=file]").each(function (formField) {
             let labelElement = '<label class="custom-file-label" for="' + $(this).attr('id') + '">Choose file</label>';
             $(this).parent().before($(this).parent().children('label'));
             $(this).parent().addClass("custom-file");
@@ -37,8 +37,11 @@
             $(this).addClass("custom-file-input");
         });
         $(".custom-file-input").on("change", function () {
-            var fileName = $(this).val().split("\\").pop();
-            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            let fileNames = [];
+            Array.from($(this)[0].files).forEach(file => {
+                fileNames.push(file.name)
+            });
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileNames.join(', '));
         });
     </script>
 

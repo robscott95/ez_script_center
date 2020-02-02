@@ -15,6 +15,10 @@ body {
   width: 80%;
   margin: 0 auto;
   max-width: 800px;
+
+  .custom-file {
+    margin-bottom: 1rem!important;
+  }
 }
 
 #submit-btn {
@@ -47,6 +51,7 @@ body {
     min-width: 950px;
   }
 }
+
 
 //buttons
 .gray-active[aria-expanded="true"] {

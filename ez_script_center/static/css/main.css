@@ -15,6 +15,9 @@ body {
   margin: 0 auto;
   max-width: 800px;
 }
+#script-request .custom-file {
+  margin-bottom: 1rem !important;
+}
 
 #submit-btn {
   width: 200px;
