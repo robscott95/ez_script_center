@@ -7,6 +7,13 @@ $("#script-request").keyup(function (event) {
 });
 
 function toggleModal() {
+    let submitBtn = $("#submit-btn");
+    submitBtn.attr("disabled");
+    submitBtn.text('Loading...').prepend(
+        '<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" ' +
+        'style="vertical-align: baseline; margin-right: 5px;"></span>'
+    );
+
     validateForm();
 }
 
@@ -67,9 +74,13 @@ function listResults(data, target_div, show_input = false, show_result = false, 
 
 // AJAX task starter
 function validateForm() {
+    function clearErrors() {
+        $('.invalid-feedback').remove();
+        $('.is-invalid').addClass("is-valid").removeClass("is-invalid")
+    }
 
     function showErrors(data) {
-        $('.invalid-feedback').remove();
+        clearErrors();
 
         for (let id in data) {
             let invalidFormField = $("#" + id);
@@ -78,7 +89,9 @@ function validateForm() {
             invalidFormField.parent().append(errorMessage)
         }
 }
+
     let modal = $("#progressModal");
+    let submitBtn = $("#submit-btn");
 
     $.ajax({
         type: 'POST',
@@ -88,11 +101,14 @@ function validateForm() {
         processData: false,
         contentType: false,
         success: function (data, status, request) {
+            submitBtn.removeAttr("disabled");
+            submitBtn.text('Execute script').remove('.spinner-grow')
             // Check if form validation is true.
             let formValidationError = request.getResponseHeader('form_validation_error');
             if (formValidationError === "True") {
                 showErrors(data)
             } else {
+                clearErrors()
                 start_long_task(modal, request)
             }
         },

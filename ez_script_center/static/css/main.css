@@ -16,6 +16,10 @@ body {
   max-width: 800px;
 }
 
+#submit-btn {
+  width: 200px;
+}
+
 #history-table {
   width: 85%;
   margin: 30px auto 0;
