@@ -108,4 +108,4 @@ class TaskBase(celery.Task):
 
         result = {"result_files": files, "result_info": info}
 
-        return {"progressbar_message": progressbar_message, "result": result}
+        return {"current": 1, "total": 1, "progressbar_message": progressbar_message, "result": result}

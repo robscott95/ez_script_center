@@ -93,7 +93,7 @@ function validateForm() {
             if (formValidationError === "True") {
                 showErrors(data)
             } else {
-                start_long_task(modal)
+                start_long_task(modal, request)
             }
         },
         error: function () {
@@ -102,7 +102,7 @@ function validateForm() {
     });
 }
 
-function start_long_task(modal) {
+function start_long_task(modal, request) {
     // add task status elements
     progress_bar_outside = $('<div class="progress" style="background-color: darkgrey;"></div>');
     $('#progress').append(progress_bar_outside);

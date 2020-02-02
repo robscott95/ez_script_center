@@ -63,17 +63,12 @@ def update_task_history_with_results(
 
 
 def get_task_history(task_id):
-    # Try 3 times to get results, if nothing pops up, return normally
-    for i in range(0, 3):
-        task_history = TaskHistory.query.filter_by(id=task_id).first()
-        if (
-            task_history.data_task_history.result_info is not None
-            or task_history.data_task_history.result_files is not None
-            or task_history.data_task_history.error is not None
-        ):
-            break
-        else:
-            sleep(0.5)
+    task_history = TaskHistory.query.filter_by(id=task_id).first()
+
+    if not task_history.ready:
+        sleep(1)
+        db.session.expire(task_history)
+        return get_task_history(task_id)
 
     return {
         'input_info': task_history.data_task_history.input_info,

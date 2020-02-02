@@ -104,6 +104,8 @@ def execute_ngram_analysis(
     ngram_performance_dict = ngram_analysis.calculate_ngram_performance(
         input_data_with_ngrams_df)
 
+    import time
+    time.sleep(20)
     # Drop the file into a BytesIO file-like object so it can be safely
     # uploaded to s3
     return_file = BytesIO()
