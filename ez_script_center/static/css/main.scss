@@ -17,28 +17,32 @@ body {
   max-width: 800px;
 }
 
-#history-search-form {
-  min-width: 770px;
-  padding-bottom: 10px;
-
-  div.form-row {
-    margin-left: 0px;
-    margin-right: 0px;
-    
-    div:first-child {
-      padding-left: 0px;
-    }
-  
-    div:last-child {
-      padding-right: 0px;
-    }
-  }
-
-}
 
 #history-table {
   width: 85%;
   margin: 30px auto 0;
+
+  #history-search-form {
+    min-width: 950px;
+    padding-bottom: 10px;
+
+    div.form-row {
+      margin-left: 0;
+      margin-right: 0;
+
+      div:first-child {
+        padding-left: 0;
+      }
+
+      div:last-child {
+        padding-right: 0;
+      }
+    }
+  }
+
+  #user-history {
+    min-width: 950px;
+  }
 }
 
 //buttons

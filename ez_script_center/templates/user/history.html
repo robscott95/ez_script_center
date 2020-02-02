@@ -16,23 +16,35 @@
     <b>Search:</b>
     <br />
     <div class="form-row align-items-center" >
+        {% if user_is_admin %}
+            <div class="col">
+                <input name="user_email" type="text" class="form-control" placeholder="User email"
+                       value={{filter_params.get("user_email", '')}}>
+            </div>
+        {% endif %}
         <div class="col">
-            <input name="tool_name" type="text" class="form-control" placeholder="Tool name" value={{filter_params.get("tool_name", '')}}>
+            <input name="tool_name" type="text" class="form-control" placeholder="Tool name"
+                   value={{filter_params.get("tool_name", '')}}>
         </div>
         <div class="col">
-            <input name="input_info" type="text" class="form-control" placeholder="Input info" value={{filter_params.get("input_info", '')}}>
+            <input name="input_info" type="text" class="form-control" placeholder="Input info"
+                   value={{filter_params.get("input_info", '')}}>
         </div>
         <div class="col">
-            <input name="input_file" type="text" class="form-control" placeholder="Input files" value={{filter_params.get("input_files", '')}}>
+            <input name="input_file" type="text" class="form-control" placeholder="Input files"
+                   value={{filter_params.get("input_files", '')}}>
         </div>
         <div class="col">
-            <input name="result_info" type="text" class="form-control" placeholder="Result info" value={{filter_params.get("result_info", '')}}>
+            <input name="result_info" type="text" class="form-control" placeholder="Result info"
+                   value={{filter_params.get("result_info", '')}}>
         </div>
         <div class="col">
-            <input name="result_file" type="text" class="form-control" placeholder="Result files" value={{filter_params.get("result_info", '')}}>
+            <input name="result_file" type="text" class="form-control" placeholder="Result files"
+                   value={{filter_params.get("result_info", '')}}>
         </div>
         <div class="col" :last-child>
-            <input name="error" type="text" class="form-control" placeholder="Errors" value={{filter_params.get("error", '')}}>
+            <input name="error" type="text" class="form-control" placeholder="Errors"
+                   value={{filter_params.get("error", '')}}>
         </div>
     </div>
     <input type="submit" value="Submit" style="display: none;">
@@ -43,6 +55,9 @@
     <thead style="background-color: #007bff; color: white; text-align: center;">
         <tr>
             <th scope="col" class="align-middle">Task ID</th>
+            {% if user_is_admin %}
+                <th scope="col" class="align-middle">User email</th>
+            {% endif %}
             <th scope="col" class="align-middle">Tool name</th>
             <th scope="col" class="align-middle">Input info</th>
             <th scope="col" class="align-middle">Input files</th>
@@ -54,19 +69,22 @@
     <tbody>
     {% for task in task_history_content %}
         {% if task.error is not none %}
-        <tr class="table-danger">
+            <tr class="table-danger">
         {% elif task.ready == false %}
-        <tr class="table-warning task-not-ready">
+            <tr class="table-warning task-not-ready">
         {% else %}
-        <tr>
+            <tr>
         {% endif %}
             <th scope="row">{{task.task_id}}</th>
+            {% if user_is_admin %}
+                <td>{{ task.user_email }}</td>
+            {% endif %}
             <td><a href="{{ task.tool_url }}">{{ task.tool_name }}</a></td>
             <td>
                 {% if task.input_info is not none %}
                     {% for name, content in task.input_info.items() %}
                     {% if name != "csrf_token" %}
-                        <b>{{ name }}</b>: {{ content }}<br />
+                        <b>{{ " ".join(name.capitalize().split("_")) }}</b>: {{ content }}<br />
                     {% endif %}
                     {% endfor %}
                 {% endif %}
@@ -74,21 +92,23 @@
             <td>
                 {% if task.input_files is not none %}
                     {% for file_url, filename, name in task.input_files.values() %}
-                        <b>{{ name }}: </b><a href="{{ file_url }}">{{ filename }}</a><br />
+                        <b>{{ " ".join(name.capitalize().split("_")) }}: </b>
+                        <a href="{{ file_url }}">{{ filename }}</a><br />
                     {% endfor %}
                 {% endif %}
             </td>
             <td>
                 {% if task.result_info is not none %}
                     {% for name, content in task.result_info.items() %}
-                        <b>{{ name }}</b>: {{ content }}<br />
+                        <b>{{ " ".join(name.capitalize().split("_")) }}</b>: {{ content }}<br />
                     {% endfor %}
                 {% endif %}
             </td>
             <td>
                 {% if task.result_files is not none %}
                     {% for file_url, filename, name in task.result_files.values() %}
-                        <b>{{ name }}: </b><a href="{{ file_url }}">{{ filename }}</a><br />
+                        <b>{{ " ".join(name.capitalize().split("_")) }}: </b>
+                        <a href="{{ file_url }}">{{ filename }}</a><br />
                     {% endfor %}
                 {% endif %}
             </td>

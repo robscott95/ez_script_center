@@ -50,8 +50,11 @@ def specific_tool(tool_url):
         return "Access denied. This attempt is logged.", 403
 
     elif tool_url not in TasksManager.available_tasks:
-        current_app.logger.error(f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).")
-        return f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).", 500
+        current_app.logger.error(
+            f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename)."
+        )
+        return (f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, "
+                f"fix the filename).", 500)
 
     form_custom_template = TasksManager.available_forms[tool_url]["custom_template"]
     wtf_form = TasksManager.available_forms[tool_url]["form_data"]()

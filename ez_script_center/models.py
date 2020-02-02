@@ -12,6 +12,7 @@ class User(UserMixin, db.Model):
     # 0 - can't access anything
     # 1 - basic access privilage
     # 2 - elevated access privilage (for example: to allow executing modifying scripts)
+    # 3 - admin.
     access_level = db.Column(db.SmallInteger(), nullable=False, default=1)
     task_history = db.relationship("TaskHistory", backref="user_task_history", lazy=True)
 

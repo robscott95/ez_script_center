@@ -16,24 +16,26 @@ body {
   max-width: 800px;
 }
 
-#history-search-form {
-  min-width: 770px;
-  padding-bottom: 10px;
-}
-#history-search-form div.form-row {
-  margin-left: 0px;
-  margin-right: 0px;
-}
-#history-search-form div.form-row div:first-child {
-  padding-left: 0px;
-}
-#history-search-form div.form-row div:last-child {
-  padding-right: 0px;
-}
-
 #history-table {
   width: 85%;
   margin: 30px auto 0;
+}
+#history-table #history-search-form {
+  min-width: 950px;
+  padding-bottom: 10px;
+}
+#history-table #history-search-form div.form-row {
+  margin-left: 0;
+  margin-right: 0;
+}
+#history-table #history-search-form div.form-row div:first-child {
+  padding-left: 0;
+}
+#history-table #history-search-form div.form-row div:last-child {
+  padding-right: 0;
+}
+#history-table #user-history {
+  min-width: 950px;
 }
 
 .gray-active[aria-expanded=true] {

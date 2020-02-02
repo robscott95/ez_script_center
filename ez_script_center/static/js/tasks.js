@@ -106,7 +106,8 @@ function start_long_task(modal) {
     // add task status elements
     progress_bar_outside = $('<div class="progress" style="background-color: darkgrey;"></div>');
     $('#progress').append(progress_bar_outside);
-    progress_bar_inside = $('<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>');
+    progress_bar_inside = $('<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"' +
+        ' aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0"></div>');
     $(progress_bar_outside).append(progress_bar_inside);
     $(progress_bar_outside).after("<hr>");
 

@@ -13,7 +13,7 @@ from sqlalchemy.sql.expression import cast
 from sqlalchemy import String as sql_string
 from sqlalchemy.dialects import postgresql
 
-from .models import TaskHistory, DataStorage, Tools
+from .models import TaskHistory, DataStorage, Tools, User
 from . import s3
 
 user = Blueprint("user", __name__, template_folder="templates/user")
@@ -24,6 +24,7 @@ user = Blueprint("user", __name__, template_folder="templates/user")
 def history():
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 10))
+    user_is_admin = True if current_user.access_level == 3 else False
 
     # Overall, I think it would be better to create a table for each
     # element and just reference it approprietly than to do this mental
@@ -33,7 +34,7 @@ def history():
     # design, but if we want something more complex, then it'd be easier
     # to have a simpler database.
 
-    def create_filter(value, query):
+    def create_filter(value, reference_table, query):
         filter_val = request.args.get(value, '')
 
         if filter_val == '':
@@ -41,22 +42,28 @@ def history():
 
         filter_val = filter_val.replace(' ', '%')
 
-        return TaskHistory.data_task_history.has(query(f'%{filter_val}%'))
+        return reference_table.has(query(f'%{filter_val}%'))
 
+    # key = field, value[0] = reference_table, value[1] = query
     filter_fields_and_queries = {
-        "tool_name": Tools.name.ilike,
-        "input_info": cast(DataStorage.input_info, sql_string).ilike,
-        "input_file": cast(DataStorage.input_files, sql_string).ilike,
-        "result_info": cast(DataStorage.result_info, sql_string).ilike,
-        "result_file": cast(DataStorage.result_files, sql_string).ilike,
-        "error": DataStorage.error.ilike
+        "user_email": (TaskHistory.user_task_history, User.email.ilike),
+        "tool_name": (TaskHistory.tools_task_history, Tools.name.ilike),
+        "input_info": (TaskHistory.data_task_history, cast(DataStorage.input_info, sql_string).ilike),
+        "input_file": (TaskHistory.data_task_history, cast(DataStorage.input_files, sql_string).ilike),
+        "result_info": (TaskHistory.data_task_history, cast(DataStorage.result_info, sql_string).ilike),
+        "result_file": (TaskHistory.data_task_history, cast(DataStorage.result_files, sql_string).ilike),
+        "error": (TaskHistory.data_task_history, DataStorage.error.ilike)
     }
 
     filters = [
-        create_filter(value, query)
-        for value, query in filter_fields_and_queries.items() 
-        if create_filter(value, query) is not None
+        create_filter(value, reference_table, query)
+        for value, (reference_table, query) in filter_fields_and_queries.items()
+        if create_filter(value, reference_table, query) is not None
     ]
+
+    # Get only history for given user if he's not an admin.
+    if not user_is_admin:
+        filters.append(TaskHistory.user_id == current_user.id)
 
     task_history = (
         TaskHistory.query
@@ -67,6 +74,7 @@ def history():
 
     task_history_content = [
         {
+            "user_email": task.user_task_history.email if current_user.access_level == 3 else None,
             "task_id": task.id,
             "tool_name": task.tools_task_history.name,
             "tool_url": task.tools_task_history.url,
@@ -93,5 +101,6 @@ def history():
     return render_template(
         "history.html",
         task_history_content=task_history_content,
-        task_history=task_history
+        task_history=task_history,
+        user_is_admin=user_is_admin
     )
