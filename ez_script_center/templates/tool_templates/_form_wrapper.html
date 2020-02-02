@@ -23,7 +23,21 @@
             <button id="submit-btn" type="button" class="btn btn-primary btn-lg align-self-center" onclick="toggleModal()">Execute script</button>
         </div>
     </form>
-</div>  
+</div>
+
+    <script>
+       $( ".form-control-file" ).each(function( formField ) {
+          let labelElement = '<label class="custom-file-label" for="' + $(this).attr('id') + '">Choose file</label>'
+          $(this).parent().before($(this).parent().children('label'))
+          $(this).parent().addClass("custom-file")
+          $(this).parent().append(labelElement)
+          $(this).addClass("custom-file-input")
+        });
+        $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
 
 {% include 'progress.html' %}
 {%endblock%}

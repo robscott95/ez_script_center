@@ -6,18 +6,19 @@ from flask import (
     jsonify,
     Markup,
     request,
-    current_app
+    current_app,
+    make_response
 )
 from flask_login import login_required, current_user
-# from flask_wtf import FlaskForm
-# import wtforms
+from flask_wtf import FlaskForm
+import wtforms
 
 from .database_manager import db_upload_task_request
 from .models import Tools
 
 from .tasks_manager import TasksManager
 from . import s3
-
+from .tasks_manager.n_gram_analysis import n_gram_analysis_form
 
 tools = Blueprint("tools", __name__, template_folder="templates/tool_templates")
 
@@ -51,24 +52,37 @@ def specific_tool(tool_url):
         current_app.logger.warning(f"User {current_user.id} attempted to access {tool_url}.")
         return "Access denied. This attempt is logged.", 403
 
-    elif TasksManager.available_tasks.get(tool_url, None) is None:
+    elif tool_url not in TasksManager.available_tasks:
         current_app.logger.error(f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).")
         return f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).", 500
 
+    if tool_url in TasksManager.available_forms:
+        wtf_form = TasksManager.available_forms[tool_url]()
+    else:
+        wtf_form = None
+
+    tool_desc = Markup(tool_info.long_description)
+
     if request.method == "GET":
-        tool_desc = Markup(tool_info.long_description)
 
-        # Add rendering of wtforms. Lots of work needed with a good
-        # jinja macro.
-        # form = n_gram_analysis_form()
-        # return render_template("tool_display.html", form=form)
-
-        return render_template(f"{tool_url}.html",
-                               long_desc=tool_desc,
-                               tool_name=tool_info.name)
+        if wtf_form is not None:
+            return render_template("wtforms_template_rendering.html",
+                                   long_desc=tool_desc,
+                                   tool_name=tool_info.name,
+                                   form_data=wtf_form)
+        else:
+            return render_template(f"{tool_url}.html",
+                                   long_desc=tool_desc,
+                                   tool_name=tool_info.name)
 
     if request.method == "POST":
+        if wtf_form is not None:
+            if not wtf_form.validate_on_submit():
+                form_errors = {ele.name: ele.errors[0] for ele in wtf_form if ele.errors}
+                return jsonify(form_errors), 200, {'form_validation_error': True}
+
         input_info = request.form
+        input_info.pop('csrf_token')
         input_files = s3.upload_files(request.files, read_filename_from_file=True)
 
         task_id = db_upload_task_request(current_user.id, input_info,
@@ -84,7 +98,6 @@ def specific_tool(tool_url):
         return (
             jsonify({}),
             202,
-            {"task_status_url": url_for(
-                "tasks.task_status", task_url=tool_url, task_id=task.id
-            )},
+            {"task_status_url": url_for("tasks.task_status", task_url=tool_url, task_id=task.id),
+             "form_validation_error": False}
         )

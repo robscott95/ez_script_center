@@ -21,15 +21,16 @@ from ez_script_center.tasks_manager.scripts import ngram_analysis
 
 from flask_wtf import FlaskForm
 import wtforms
+from wtforms.validators import Length
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
 
 @TasksManager.register_task()
 @celery_worker.task(bind=True, base=TaskBase)
 def execute_ngram_analysis(
-    self,
-    data,
-    lemmatize=False,
+        self,
+        data,
+        lemmatize=False,
 ):
     """The main function that takes in the path to the .csv with raw
     data and returns the dict containing performance for each ngram.
@@ -84,7 +85,8 @@ def execute_ngram_analysis(
               'progressbar_message': f"Cleaning and processing input data..."}
     )
 
-    input_data_cleaned_df = ngram_analysis.clean_input_data(input_data_df, lemmatize=lemmatize)
+    input_data_cleaned_df = ngram_analysis.clean_input_data(input_data_df,
+                                                            lemmatize=lemmatize)
     input_data_with_ngrams_df = ngram_analysis.create_ngrams(input_data_cleaned_df)
 
     self.update_state(
@@ -99,7 +101,8 @@ def execute_ngram_analysis(
               'progressbar_message': f"Calculating performance..."}
     )
 
-    ngram_performance_dict = ngram_analysis.calculate_ngram_performance(input_data_with_ngrams_df)
+    ngram_performance_dict = ngram_analysis.calculate_ngram_performance(
+        input_data_with_ngrams_df)
 
     # Drop the file into a BytesIO file-like object so it can be safely
     # uploaded to s3
@@ -121,8 +124,11 @@ def execute_ngram_analysis(
 
 @TasksManager.register_form()
 class n_gram_analysis_form(FlaskForm):
-    string_field_test = wtforms.StringField(
-        "String Field Test", [wtforms.validators.Length(3, 20, message="Min. 3 Max 20")])
-    copy_performance = wtforms.MultipleFileField(
-        "Main File", [FileRequired("File required")]
-    )
+    string_field_test = wtforms.StringField("String Field Test",
+                                            [wtforms.validators.input_required(),
+                                             wtforms.validators.Length(3, 20, message=("Min. 3 Max 20"))])
+
+    # copy_performance = wtforms.MultipleFileField("Main File",
+    #                                              [FileRequired("File required")])
+
+    copy_performance = wtforms.FileField("Main File", [FileRequired(), FileAllowed(['csv'], ".csv file requried")])

@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_bootstrap import Bootstrap
 from celery import Celery
 
 from oauthlib.oauth2 import WebApplicationClient
@@ -26,6 +27,7 @@ TasksManager()
 
 def create_app():
     app = Flask(__name__)
+    bootstrap = Bootstrap(app)
 
     app.config['SECRET_KEY'] = c.APP_SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = c.DATABASE_URL

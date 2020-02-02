@@ -5,6 +5,7 @@ In __init__ of your app please import and initialize the
 TaskManager object.
 """
 import inspect
+from abc import ABC
 from os.path import dirname, basename, join
 from glob import glob
 
@@ -57,16 +58,14 @@ class TasksManager:
     def register_form(url=None):
         url = TasksManager._url_creator(url)
 
-        def inner_func(task):
-            TasksManager.__dict__["available_forms"][url] = task
-            return task
+        def inner_func(form):
+            TasksManager.__dict__["available_forms"][url] = form
+            return form
 
         return inner_func
 
 
 class TaskBase(celery.Task):
-    # def apply_async(self, *args, **kwargs):
-    #     return super(TaskBase, self).apply_async(*args, **kwargs)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
         try:

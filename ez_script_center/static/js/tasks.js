@@ -1,6 +1,6 @@
 // Model and form validation handling
 
-var modal = $("#progressModal")
+let modal = $("#progressModal");
 
 $("#script-request").keyup(function(event) {
     if (event.keyCode === 13) {
@@ -10,15 +10,15 @@ $("#script-request").keyup(function(event) {
 
 function toggleModal() {
     if (validateForm() === true) {
-        modal.modal("show");
-        start_long_task();
+        start_long_task(modal);
     }
 }
 
 function validateForm() {
-    var form_valid = true;
-    var forms = document.getElementsByClassName('needs-validation');
+    let form_valid = true;
+    let forms = document.getElementsByClassName('needs-validation');
     Array.prototype.filter.call(forms, function (form) {
+        // Basic validation
         if (form.checkValidity() === false) {
             event.preventDefault();
             event.stopPropagation();
@@ -26,6 +26,7 @@ function validateForm() {
             form_valid = false;
         }
     });
+
     return form_valid;
 };
 
@@ -86,7 +87,7 @@ function listResults(data, target_div, show_input = false, show_result = false, 
 
 // AJAX task starter
 
-function start_long_task() {
+function start_long_task(modal) {
     // add task status elements
     progress_bar_outside = $('<div class="progress" style="background-color: darkgrey;"></div>');
     $('#progress').append(progress_bar_outside);
@@ -103,8 +104,20 @@ function start_long_task() {
         processData: false,
         contentType: false,
         success: function (data, status, request) {
-            status_url = request.getResponseHeader('task_status_url');
-            update_progress(status_url, progress_bar_inside, progress_bar_outside);
+            // Check if form validation is true.
+            let formValidationError = request.getResponseHeader('form_validation_error');
+            if (formValidationError === "True") {
+                for (let id in data) {
+                    let invalidFormField = $("#" + id);
+                    let errorMessage = '<div class=\"invalid-feedback\"> ' + data[id] + '</div>';
+                    invalidFormField.addClass("is-invalid");
+                    invalidFormField.parent().append(errorMessage)
+                }
+            } else {
+                modal.modal("show");
+                let status_url = request.getResponseHeader('task_status_url');
+                update_progress(status_url, progress_bar_inside, progress_bar_outside);
+            }
         },
         error: function () {
             alert('Unexpected error');
