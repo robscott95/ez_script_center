@@ -55,11 +55,13 @@ class TasksManager:
         return inner_func
 
     @staticmethod
-    def register_form(url=None):
+    def register_form(url=None, custom_template=False):
         url = TasksManager._url_creator(url)
 
         def inner_func(form):
-            TasksManager.__dict__["available_forms"][url] = form
+            TasksManager.__dict__["available_forms"][url] = {}
+            TasksManager.__dict__["available_forms"][url]["custom_template"] = custom_template
+            TasksManager.__dict__["available_forms"][url]["form_data"] = form
             return form
 
         return inner_func

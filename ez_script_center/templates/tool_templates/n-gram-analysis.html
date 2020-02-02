@@ -1,9 +1,9 @@
 {% extends "tool_templates/_form_wrapper.html" %}
+{% from 'bootstrap/form.html' import render_field %}
 
 {% block form %}
 
-    <div class="form-group custom-file" style="margin-bottom: 1rem!important;">
-        <input name="copy_performance" type="file" class="custom-file-input" id="customFile" required>
-        <label class="custom-file-label" for="customFile">Choose file</label>
-    </div>
+    {{ render_field(form_data.copy_performance) }}
+    <br />
+
 {%endblock%}

@@ -25,6 +25,7 @@ s3 = S3Manager(c.S3_BUCKET)
 from .tasks_manager import TasksManager
 TasksManager()
 
+
 def create_app():
     app = Flask(__name__)
     bootstrap = Bootstrap(app)

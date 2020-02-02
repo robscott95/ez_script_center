@@ -122,8 +122,8 @@ def execute_ngram_analysis(
     )
 
 
-@TasksManager.register_form()
-class n_gram_analysis_form(FlaskForm):
+@TasksManager.register_form(custom_template=False)
+class NGramAnalysisForm(FlaskForm):
     string_field_test = wtforms.StringField("String Field Test",
                                             [wtforms.validators.input_required(),
                                              wtforms.validators.Length(3, 20, message=("Min. 3 Max 20"))])
@@ -131,4 +131,5 @@ class n_gram_analysis_form(FlaskForm):
     # copy_performance = wtforms.MultipleFileField("Main File",
     #                                              [FileRequired("File required")])
 
-    copy_performance = wtforms.FileField("Main File", [FileRequired(), FileAllowed(['csv'], ".csv file requried")])
+    copy_performance = wtforms.FileField("Copy performance CSV",
+                                         [FileRequired(), FileAllowed(['csv'], ".csv file required")])

@@ -10,15 +10,12 @@ from flask import (
     make_response
 )
 from flask_login import login_required, current_user
-from flask_wtf import FlaskForm
-import wtforms
 
 from .database_manager import db_upload_task_request
 from .models import Tools
 
 from .tasks_manager import TasksManager
 from . import s3
-from .tasks_manager.n_gram_analysis import n_gram_analysis_form
 
 tools = Blueprint("tools", __name__, template_folder="templates/tool_templates")
 
@@ -56,16 +53,13 @@ def specific_tool(tool_url):
         current_app.logger.error(f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).")
         return f"{tool_url} wasn't found in available tasks. Check the url of registered task (if None, fix the filename).", 500
 
-    if tool_url in TasksManager.available_forms:
-        wtf_form = TasksManager.available_forms[tool_url]()
-    else:
-        wtf_form = None
-
-    tool_desc = Markup(tool_info.long_description)
+    form_custom_template = TasksManager.available_forms[tool_url]["custom_template"]
+    wtf_form = TasksManager.available_forms[tool_url]["form_data"]()
 
     if request.method == "GET":
 
-        if wtf_form is not None:
+        tool_desc = Markup(tool_info.long_description)
+        if not form_custom_template:
             return render_template("wtforms_template_rendering.html",
                                    long_desc=tool_desc,
                                    tool_name=tool_info.name,
@@ -73,16 +67,15 @@ def specific_tool(tool_url):
         else:
             return render_template(f"{tool_url}.html",
                                    long_desc=tool_desc,
-                                   tool_name=tool_info.name)
+                                   tool_name=tool_info.name,
+                                   form_data=wtf_form)
 
     if request.method == "POST":
-        if wtf_form is not None:
-            if not wtf_form.validate_on_submit():
-                form_errors = {ele.name: ele.errors[0] for ele in wtf_form if ele.errors}
-                return jsonify(form_errors), 200, {'form_validation_error': True}
+        if not wtf_form.validate_on_submit():
+            form_errors = {ele.name: ele.errors[0] for ele in wtf_form if ele.errors}
+            return jsonify(form_errors), 200, {'form_validation_error': True}
 
-        input_info = request.form
-        input_info.pop('csrf_token')
+        input_info = {key: value for key, value in request.form.items() if key != 'csrf_token'}
         input_files = s3.upload_files(request.files, read_filename_from_file=True)
 
         task_id = db_upload_task_request(current_user.id, input_info,
