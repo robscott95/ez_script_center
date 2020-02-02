@@ -74,7 +74,7 @@ def history():
 
     task_history_content = [
         {
-            "user_email": task.user_task_history.email if current_user.access_level == 3 else None,
+            "user_email": task.user_task_history.email if user_is_admin else None,
             "task_id": task.id,
             "tool_name": task.tools_task_history.name,
             "tool_url": task.tools_task_history.url,
