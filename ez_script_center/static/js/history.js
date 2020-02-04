@@ -19,11 +19,12 @@ $(document).ready(function() {
 
 function waitForUpdateAlert(runningTasks) {
     alertBox = $("#alert-box")
-    alertBox.addClass("alert alert-warning")
+    alertBox.addClass("alert alert-light")
     alertBox.text("Some tasks are not yet ready. Current status:");
     runningTasks.forEach(task => {
         alertBox.append(
-            "<div id='" + task.id + "'><b>" + task.id + "</b>: Waiting for an update...</div>"
+            "<div id='" + task.id + "' class='alert alert-warning'><b>" + task.id + "</b>: Waiting for an" +
+            " update...</div>"
         )
         updateTaskStatus(task, alertBox)
     });
@@ -34,7 +35,6 @@ function updateTaskStatus(task, alertBox) {
 
     $.getJSON(status_url, function (data) {
         percent = parseInt(data['current'] * 100 / data['total']);
-        console.log(data)
         alertBox.find("#" + task.id).html(
             "<b>" + task.id + "</b>: " + data['progressbar_message'] + " (" + percent + "%)"
         )
@@ -43,16 +43,20 @@ function updateTaskStatus(task, alertBox) {
             alertBox.find("#" + task.id).html(
                 "<b>" + task.id + "</b>: Task completed sucessfully. Please refresh this page to see the results..."
             )
+
+            alertBox.find("#" + task.id).switchClass("alert-warning", "alert-success", 500)
         }
         else if  (data['state'] == 'FAILURE') {
             alertBox.find("#" + task.id).html(
                 "<b>" + task.id + "</b>: Task failed. Please refresh this page to see the details..."
             )
+            alertBox.find("#" + task.id).switchClass("alert-warning", "alert-danger", 500)
         } 
         else if  (data['state'] == 'PENDING') {
             alertBox.find("#" + task.id).html(
                 "<b>" + task.id + "</b>: Either there has been an error with the ID of the task, or it has completed in another window. Please refresh the page..."
             )
+            alertBox.find("#" + task.id).switchClass("alert-warning", "alert-danger", 500)
         } 
         else {
             // if not success or error rerun task in 2 sec

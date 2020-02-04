@@ -60,7 +60,6 @@ def specific_tool(tool_url):
     wtf_form = TasksManager.available_forms[tool_url]["form_data"]()
 
     if request.method == "GET":
-        print(tool_info.instructions)
         tool_desc = Markup(tool_info.long_description)
         tool_instructions = Markup(tool_info.instructions) if tool_info.instructions is not None else None
 
