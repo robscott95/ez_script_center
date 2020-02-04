@@ -24,6 +24,7 @@ class Tools(db.Model):
     name = db.Column(db.String(100), nullable=False, unique=True)
     short_description = db.Column(db.Text())
     long_description = db.Column(db.Text())
+    instructions = db.Column(db.Text()) # TODO: add instructions column
     min_req_access_level = db.Column(db.SmallInteger(), nullable=False, default=1)
     task_history = db.relationship("TaskHistory", backref="tools_task_history", lazy=True)
 

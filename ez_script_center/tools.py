@@ -60,17 +60,21 @@ def specific_tool(tool_url):
     wtf_form = TasksManager.available_forms[tool_url]["form_data"]()
 
     if request.method == "GET":
-
+        print(tool_info.instructions)
         tool_desc = Markup(tool_info.long_description)
+        tool_instructions = Markup(tool_info.instructions) if tool_info.instructions is not None else None
+
         if not form_custom_template:
             return render_template("wtforms_template_rendering.html",
                                    long_desc=tool_desc,
                                    tool_name=tool_info.name,
+                                   tool_instructions=tool_instructions,
                                    form_data=wtf_form)
         else:
             return render_template(f"{tool_url}.html",
                                    long_desc=tool_desc,
                                    tool_name=tool_info.name,
+                                   tool_instructions=tool_instructions,
                                    form_data=wtf_form)
 
     if request.method == "POST":
